@@ -10,7 +10,7 @@ fileInfo.file_dir.res_dir = ["变换后图片"+dir_ind+"时间堆栈","变换后图片"+dir_in
 
 
 for i = 1:length(fileInfo.file_dir.res_dir)
-    if ~exist(fileInfo.file_dir.dir_name+fileInfo.file_dir.res_dir(i),'dir')
+    if ~exist(fileInfo.file_dir.res_dir(i),dir(fileInfo.file_dir.dir_name))==0
          mkdir(fileInfo.file_dir.dir_name,fileInfo.file_dir.res_dir(i));
     end
 end

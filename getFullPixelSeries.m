@@ -71,7 +71,7 @@ cpsdVar.waveHigh = 0.2;
 
 % 用timeStack系列获取的数据来源
 % load("./timeStackOperation/data_cell_normalized.mat");
-load(".\selectPic\afterPer\双月湾第二组变换后\变换后图片"+picInfo.idx+"相关处理\最终元胞数据\data_cell_det&nor.mat");
+load("F:\workSpace\matlabWork\dispersion\selectPic\afterPer\双月湾第二组变换后\变换后图片"+picInfo.idx+"相关处理\最终元胞数据\data_cell_det&nor.mat");
 picInfo.afterFilter = usefulData;
 
 
