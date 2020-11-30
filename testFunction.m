@@ -166,9 +166,9 @@ plot(F,mag);
 
 
 %%
-  tmp = imread("./selectPic/afterPer/双月湾第二组变换后/变换后图片5/uasDemo_1603582140167.jpg");
-  tmp = insertShape(tmp,'Line',[200 1 200 431],'LineWidth',1,'Color','r');
-  imshow(tmp);
+%   tmp = imread("./selectPic/afterPer/双月湾第二组变换后/变换后图片5/uasDemo_1603582140167.jpg");
+%   tmp = insertShape(tmp,'Line',[200 1 200 431],'LineWidth',1,'Color','r');
+%   imshow(tmp);
   
 %%
   fixedtime = seaDepth(:,500);%分辨率为0.2m设为200
