@@ -79,8 +79,8 @@ t = n/Fs;
     hold on;
     plot(F3,mag3,'b');
     hold on;
-    plot(F, mag, 'k');
-    hold on;
+%     plot(F, mag, 'k');
+%     hold on;
     plot(F4, mag4, 'y');
     
 %%    
