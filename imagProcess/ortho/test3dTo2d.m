@@ -37,8 +37,8 @@ objectPointsInCs = Rotate_ned2cs*objectPoints';
 objectPointsInCs = objectPointsInCs';
 [Re_c, tvec] = gcpForCamExtrinsic(cameraMatrix,objectPointsInCs,imagePoints);
 
-crossRange =[0,200]; 
-longRange =[0,90];
+crossRange =[-10,200]; 
+longRange =[-10,90];
 seaLevel = 0;
 pixelInterval = 0.5;
 
