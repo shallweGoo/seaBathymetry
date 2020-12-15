@@ -2,7 +2,7 @@
 
 1、downSampleFromVideo
 
-2、getGcpInfo
+2、getGcpInfo_UV->getGcpInfo_World
 
 3、matchGcp
 

@@ -158,8 +158,7 @@ function gcpInfo =  getGcpInfo(imagePath,gcpSavePath,mode)
             
         end
         
-       
-        
+         
         % 重新输入gcp格式
         for k=1:length(UVsave(:,1))
             gcp(k).UVd=UVsave(k,2:3);
@@ -167,7 +166,10 @@ function gcpInfo =  getGcpInfo(imagePath,gcpSavePath,mode)
         end
 
     end
-
+        
+    
+    
+    
     %% 输出并储存gcp信息
     close all
 
