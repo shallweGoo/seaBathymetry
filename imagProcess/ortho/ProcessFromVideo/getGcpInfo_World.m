@@ -11,7 +11,7 @@ function gcpInfo_world = getGcpInfo_World(gcp_llh,o_llh,euler_ned2new,savePath)
         savePath = ''; 
     end
 
-
+    
     objectPoints = gcpllh2NED(o_llh,gcp_llh); % gcp->enu 这个函数在之前的文件夹
     objectPoints = objectPoints';
 
@@ -29,8 +29,8 @@ function gcpInfo_world = getGcpInfo_World(gcp_llh,o_llh,euler_ned2new,savePath)
     
     if isempty(savePath) ~= 1
         saveName = 'gcpInfo';
-        
-        save([savePath saveName '_World'],'gcpInfo_world');
+
+        save([savePath saveName '_world'],'gcpInfo_world');
     end
     
         

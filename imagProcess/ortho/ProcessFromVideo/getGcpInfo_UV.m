@@ -1,4 +1,4 @@
-function gcpInfo =  getGcpInfo(imagePath,gcpSavePath,mode)
+function gcpInfo =  getGcpInfo_UV(imagePath,gcpSavePath,mode)
 %   该函数计算外参 (内参已经由相机标定得出)
 %   分步(可分为两种方法 1)存下第一帧的gcp坐标,并以此为标准 2)存在第一帧的gcp模板，用于后面的模板匹配 )
 %   1.选择gcp在图像坐标系中的坐标(U,V) 
@@ -55,7 +55,7 @@ function gcpInfo =  getGcpInfo(imagePath,gcpSavePath,mode)
 %                 gcpTemplate{i} = unvalid; %初始化模板数据结构
 %             end
         end 
-        while x<=c && y<=r % 鼠标在x<=c 和 y<=r 为有效区域
+        while x <= c && y <= r % 鼠标在x<=c 和 y<=r 为有效区域
 
             title('请按下任意键，进入选择模式');
             pause
@@ -163,8 +163,12 @@ function gcpInfo =  getGcpInfo(imagePath,gcpSavePath,mode)
         for k=1:length(UVsave(:,1))
             gcp(k).UVd=UVsave(k,2:3);
             gcp(k).num=UVsave(k,1);
+            if mode == 2 
+                gcp(k).template = Tsave(k).tp;
+            end
+                
         end
-
+        
     end
         
     
@@ -192,14 +196,23 @@ function gcpInfo =  getGcpInfo(imagePath,gcpSavePath,mode)
     end
 
     
-    %储存gcp.mat的信息
-    save([gcpSavePath  saveName '_firstFrame'],'gcp');
+    
 
     %储存模板,存一份mat,存一份图像
-    save([gcpSavePath saveName '_template'],'Tsave'); %mat格式
-    for i = 1:length(Tsave)
-        imwrite(Tsave(i).tp,[gcpSavePath  saveName '_template' num2str(i) '.jpg'],'jpg');
+    if mode == 2
+%         save([gcpSavePath saveName '_template'],'Tsave'); %mat格式
+%         该数据已经整合至gcp这个结构体中
+        for i = 1:length(Tsave)
+            imwrite(Tsave(i).tp,[gcpSavePath  saveName '_template' num2str(i) '.jpg'],'jpg');
+        end
     end
+    
+    %储存gcp.mat的信息
+    
+    save([gcpSavePath  saveName '_firstFrame'],'gcp');
+    
+    
+    
     
     %输出信息
     gcpInfo = gcp;

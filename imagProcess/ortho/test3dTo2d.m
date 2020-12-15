@@ -13,7 +13,7 @@ gcp_llh =[[22.5948224,114.8764800,7.41];
 % o_llh = [22.5957696,114.8766464,5.23];
 o_llh = [22.5956768,114.8767360,5.09];
 
-objectPoints =gcpllh2NED(o_llh,gcp_llh);
+objectPoints = gcpllh2NED(o_llh,gcp_llh);
 objectPoints = objectPoints';
 % 相机畸变参数和内参（1920*1080）
 imagePoints = [[258,389];[287,725];[814,1015];[1286,866];[1696,710]];
@@ -24,8 +24,8 @@ picNum = 500;
 %% 计算Re_c
 
 % Rnew = eye(3); %根据变换来修改
-Rnew = Euler2Rotate(123,0,0);
-Rnew = Rnew';
+% Rnew = Euler2Rotate(123,0,0);
+% Rnew = Rnew';
 
 
 %%
