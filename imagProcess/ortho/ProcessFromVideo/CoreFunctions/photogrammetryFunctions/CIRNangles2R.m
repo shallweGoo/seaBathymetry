@@ -42,6 +42,9 @@ function [R] = CIRNangles2R(azimuth,tilt,swing)
 
 %% Section 1: Define R
 % The Rotation follows a ZXZ rotation with Azimuth, Tilt, Swing
+
+% 公式的正负号会因为角度定义的不同而产生不同的结果
+
 R(1,1) = -cos(azimuth) * cos(swing) - sin(azimuth) * cos(tilt) * sin(swing);
 R(1,2) = cos(swing) * sin(azimuth) - sin(swing) * cos(tilt) * cos(azimuth);
 R(1,3) = -sin(swing) * sin(tilt);
@@ -52,3 +55,4 @@ R(3,1) = sin(tilt) * sin(azimuth);
 R(3,2) = sin(tilt) * cos(azimuth);
 R(3,3) = -cos(tilt);
 
+end

@@ -104,7 +104,7 @@ if sum(extrinsicsKnownsFlag)>0  %if any value is not zero
     
     extrinsicsError=nan(1,6);
     extrinsicsError(knownInd)=0; % Assumed Known so Error is 0
-    extrinsicsError(unKnownInd)=eunknownSolError;
+    extrinsicsError(unKnownInd) = eunknownSolError;
     
 end
 

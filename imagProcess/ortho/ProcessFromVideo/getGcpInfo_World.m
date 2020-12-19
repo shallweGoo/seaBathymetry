@@ -8,7 +8,7 @@ function gcpInfo_world = getGcpInfo_World(gcp_llh,o_llh,euler_ned2new,savePath)
     addpath('F:/workSpace/matlabWork/seaBathymetry/imagProcess/ortho');
 
     if nargin < 4 
-        savePath = ''; 
+        savePath = './'; 
     end
 
     
@@ -29,7 +29,6 @@ function gcpInfo_world = getGcpInfo_World(gcp_llh,o_llh,euler_ned2new,savePath)
     
     if isempty(savePath) ~= 1
         saveName = 'gcpInfo';
-
         save([savePath saveName '_world'],'gcpInfo_world');
     end
     

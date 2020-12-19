@@ -1,0 +1,5 @@
+scp_path = './scpInfo_firstFrame.mat';
+gcp_path = './gcpFullyInfo.mat';
+rotateInfo_path = './RotateInfo_firstFrame.mat';
+unsovledExtrinsic_pic_path = 'F:/workSpace/matlabWork/imgResult/downSample/';
+savePath = './';

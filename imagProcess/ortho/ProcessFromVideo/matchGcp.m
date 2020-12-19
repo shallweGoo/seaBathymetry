@@ -1,4 +1,4 @@
-function matchGcp(gcpInfo_UV_Path,gcpInfo_World_Path,mode,gcpsUsed)
+function matchGcp(gcpInfo_UV_path,gcpInfo_world_path,savePath,mode,gcpsUsed)
 %calcRotateMatrix 根据第一帧的控制点来匹配接下来帧的控制点
 %
 
@@ -13,17 +13,30 @@ function matchGcp(gcpInfo_UV_Path,gcpInfo_World_Path,mode,gcpsUsed)
 % ***mode2为 自己做的模板匹配
 
 
-    addpath(genpath('./photogrammetryFunctions'));
+    addpath(genpath('./CoreFunctions'));
     
     %载入gcpInfo_UV和gcpInfo_World数据
     
-    load(gcpInfo_UV_Path);
-    load(gcpInfo_World_Path);
+    tmp1 = load(gcpInfo_UV_path);
+    gcp = tmp1.gcp;
     
+    tmp2 = load(gcpInfo_world_path);
+    gcpInfo_world = tmp2.gcpInfo_world;
+    
+    clear tmp1;
+    clear tmp2;
+    
+    load('./neededData/intrinsicMat.mat');
+    iopath = './neededData/intrinsicMat.mat';
+    gcpUvdPath = gcpInfo_UV_path;
+    gcpXyzPath = gcpInfo_world_path;
+    
+    saveName = 'RotateInfo'; %存放的是外参和内参信息，统一称为旋转信息
     
     if nargin < 3
-        %默认为CRIN阈值匹配
+        %默认为CRIN非线性拟合nlinfit计算外参
         mode = 1;
+        savePath = './';
         gcpsUsed = [];
         for i = 1 : size(gcpInfo_world,1)  %默认全部使用
             gcpsUsed = cat(2,gcpsUsed,i);
@@ -32,15 +45,13 @@ function matchGcp(gcpInfo_UV_Path,gcpInfo_World_Path,mode,gcpsUsed)
     
     
     
-    worldCoord = '现实坐标系：x轴垂直于岸，y轴平行于岸 ';
+    gcpCoord = '现实坐标系：x轴垂直于岸，y轴平行于岸 ';
     
-    extrinsicsInitialGuess= [ 901726 274606 100 deg2rad(80) deg2rad(60) deg2rad(0)]; % [ x y z azimuth tilt swing]
+    extrinsicsInitialGuess= [20 20 100 deg2rad(45) deg2rad(0) deg2rad(0)]; % [ x y z yaw pitch roll]
 
-    %  Enter the number of knowns, or what you would like fixed in your EO
-    %  solution. 1 represents fixed where 0 represents floating (solvable) for
-    %  each value in beta.
+    %  要去求解的参数
     
-    extrinsicsKnownsFlag= [ 0 0 0 0 0 0];  % [ x y z azimuth tilt swing]
+    extrinsicsKnownsFlag= [0 0 0 0 0 0];  % [ x y z azimuth tilt swing]
     
     
     
@@ -50,9 +61,12 @@ function matchGcp(gcpInfo_UV_Path,gcpInfo_World_Path,mode,gcpsUsed)
         gcp(k).x=gcpInfo_world(k,1);
         gcp(k).y=gcpInfo_world(k,2);
         gcp(k).z=gcpInfo_world(k,3);
-        gcp(k).WorldCoordSys = worldCoord;
+        gcp(k).WorldCoordSys = gcpCoord;
         
     end
+    
+    imagePath = gcp(1).imagePath; %设置图片路径
+    
     
     % 展示修改之后的GCP信息
     disp(' ');
@@ -74,11 +88,13 @@ function matchGcp(gcpInfo_UV_Path,gcpInfo_World_Path,mode,gcpsUsed)
     UVd = reshape([gcp(gcpInd).UVd],2,length(x))';  % N x 2 矩阵代表N个gcp, 列分别为U,V
     
     
+    % 以上到创建临时变量全部都是为了防止顺序混乱，不过一般不会乱
+    
     %用一个非线性优化去求解外参矩阵
-    [extrinsics ,extrinsicsError]= extrinsicsSolver(extrinsicsInitialGuess,extrinsicsKnownsFlag,intrinsics,UVd,xyz);
-    extrinsicsInitialGuess= [ 901726 274606 100 deg2rad(80) deg2rad(60) deg2rad(0)];
+    [extrinsics,extrinsicsError]= extrinsicsSolver(extrinsicsInitialGuess,extrinsicsKnownsFlag,intrinsics,UVd,xyz);
+    extrinsicsInitialGuess= [20 20 100 deg2rad(45) deg2rad(0) deg2rad(0)]; % [ x y z azimuth tilt swing]
 
-    % Display the results
+    % 展示xyz(相机在世界坐标系下的坐标)，和三个方位角信息，方位角定位的有点乱
     disp(' ')
     disp('Solved Extrinsics and NLinfit Error')
     disp( [' x = ' num2str(extrinsics(1)) ' +- ' num2str(extrinsicsError(1))])
@@ -88,10 +104,8 @@ function matchGcp(gcpInfo_UV_Path,gcpInfo_World_Path,mode,gcpsUsed)
     disp( [' tilt = ' num2str(rad2deg(extrinsics(5))) ' +- ' num2str(rad2deg(extrinsicsError(5))) ' degrees'])
     disp( [' swing = ' num2str(rad2deg(extrinsics(6))) ' +- ' num2str(rad2deg(extrinsicsError(6))) ' degrees'])
     
-    %% Section 7: Reproject GCPs into UVd Space
-    %  Use the newly solved  extrinsics to calculate new UVd coordinates for the
-    %  GCP xyz points and compare to original clicked UVd. All GCPs will be
-    %  evaluated, not just those used for the solution.
+    %% 借用gcp的坐标来查看校正效果
+
 
     % Format All GCP World and UVd coordinates into correctly sized matrices for
     % non-linear solver and transformation functions (xyzToDistUV).
@@ -109,64 +123,60 @@ function matchGcp(gcpInfo_UV_Path,gcpInfo_World_Path,mode,gcpsUsed)
 
     % Load Specified Image and Plot Clicked and Reprojected UV GCP Coordinates
     f1=figure;
-    imshow(imagePath)
-    hold on
+    imshow(imagePath);
+    hold on;
 
     for k=1:length(gcp)
-        % Clicked Values
+        % 点击生成的gcp信息
         h1=plot(gcp(k).UVd(1),gcp(k).UVd(2),'ro','markersize',10,'linewidth',3);
-        text(gcp(k).UVd(1)+30,gcp(k).UVd(2),num2str(gcp(k).num),'color','r','fontweight','bold','fontsize',15)
+        text(gcp(k).UVd(1)+30,gcp(k).UVd(2),num2str(gcp(k).num),'color','r','fontweight','bold','fontsize',15);
 
-        % New Reprojected Values
+        % 经过校正的gcp信息
         h2=plot(UVdReproj(k,1),UVdReproj(k,2),'yo','markersize',10,'linewidth',3);
-        text(UVdReproj(k,1)+30,UVdReproj(k,2),num2str(gcp(k).num),'color','y','fontweight','bold','fontsize',15)
+        text(UVdReproj(k,1)+30,UVdReproj(k,2),num2str(gcp(k).num),'color','y','fontweight','bold','fontsize',15);
     end
-    legend([h1 h2],'Clicked UVd','Reprojected UVd')
+    
+    legend([h1 h2],'点击生成的gcp','计算外参之后演算出的gcp');
 
 
 
 
 
-    %% Section 8: Determine Reprojection Error
-    %  Use the newly solved  extrinsics to calculate new xyz coordinates for the
-    %  clicked UVd points and compare to original gcp xyzs. All GCPs will be
-    %  evaluated, not just those used for the solution.
+    %% 误差分析部分
     for k=1:length(gcp)
 
-        % Assumes Z is the known value; Reproject World XYZ from Clicked UVd
+        % 单目只有知道尺度因子Pz，也就是深度信息，才能得到2d->3d,不然就要已知一维的信息才能有解（x,y,z）
         [xyzReproj(k,:)] = distUV2XYZ(intrinsics,extrinsics,[gcp(k).UVd(1); gcp(k).UVd(2)],'z',gcp(k).z);
 
-        % Calculate Difference from Surveyd GCP World Coordinates
+        %计算误差
         gcp(k).xReprojError=xyzCheck(k,1)-xyzReproj(k,1);
         gcp(k).yReprojError=xyzCheck(k,2)-xyzReproj(k,2);
-
 
     end
 
     rms=sqrt(nanmean((xyzCheck-xyzReproj).^2));
 
-    % Display the results
-    disp(' ')
-    disp('Horizontal GCP Reprojection Error')
-    disp( (['GCP Num / X Err /  YErr']))
-
+    % 展示结果的过程
+    disp(' ');
+    disp('Horizontal GCP Reprojection Error');
+    disp( ('GCP Num / X Err /  YErr'));
+    
     for k=1:length(gcp)
         disp( ([num2str(gcp(k).num) '/' num2str(gcp(k).xReprojError) '/' num2str(gcp(k).yReprojError) ]));
     end
 
 
+    
 
 
+    %% 存放结果
 
-    %% Section 9: Save Results & MetaData
-
-    % Construct the MetaData Structure
-    % Identify files used for GCP XYZ and UV Coord
+    % 原始数据的存放结构体信息
     initialCamSolutionMeta.iopath=iopath;
     initialCamSolutionMeta.gcpUvPath=gcpUvdPath;
     initialCamSolutionMeta.gcpXyzPath=gcpXyzPath;
 
-    % Identify Solution Parameters
+    % 结果参数
     initialCamSolutionMeta.gcpsUsed=gcpsUsed;
     initialCamSolutionMeta.gcpRMSE=rms;
     initialCamSolutionMeta.gcps=gcp;
@@ -175,20 +185,22 @@ function matchGcp(gcpInfo_UV_Path,gcpInfo_World_Path,mode,gcpsUsed)
     initialCamSolutionMeta.extrinsicsUncert=extrinsicsError';
     initialCamSolutionMeta.imagePath=initialCamSolutionMeta.gcps(1).imagePath;
 
-    % Coordinate System Information
+    % 坐标系统存放
     initialCamSolutionMeta.worldCoordSys=gcpCoord;
 
 
 
-    % Save Results
-    save([odir '/' oname '_IOEOInitial' ],'initialCamSolutionMeta','extrinsics','intrinsics')
+    % 存放内外参结果
+    save([savePath saveName '_firstFrame' ],'initialCamSolutionMeta','extrinsics','intrinsics');
 
+    %存放完整的gcp信息结构体
+    save([savePath 'gcpFullyInfo'],'gcp');
+    
+    % 展示结果
+    disp(' ');
+    disp('Finished Solution');
 
-    % Display
-    disp(' ')
-    disp('Finished Solution')
-
-    disp(initialCamSolutionMeta)
+    disp(initialCamSolutionMeta);
     
     
     

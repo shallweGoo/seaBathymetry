@@ -40,7 +40,11 @@ function  [UVd,flag] = xyz2DistUV(intrinsics,extrinsics,xyz)
 [P, K, R, IC] = intrinsicsExtrinsics2P( intrinsics, extrinsics );
 
 % Find the Undistorted UV Coordinates atributed to each xyz point.
-UV = P*[xyz'; ones(1,size(xyz,1))];
+
+UV = P*[xyz'; ones(1,size(xyz,1))]; %旋转的方式和定义欧拉角的方式并不相同，这种方式看上去更为直观
+                                    %详细可以参考用户手册
+                                    
+                                    
 UV = UV./repmat(UV(3,:),3,1);  % Make Homogenenous
 
 % So the camera image we are going to pull pixel values from is distorted.

@@ -1,4 +1,4 @@
-function gcpInfo =  getGcpInfo_UV(imagePath,gcpSavePath,mode)
+function gcpInfo =  getGcpInfo_UV(imagePath,gcpSavePath,Fs,mode)
 %   该函数计算外参 (内参已经由相机标定得出)
 %   分步(可分为两种方法 1)存下第一帧的gcp坐标,并以此为标准 2)存在第一帧的gcp模板，用于后面的模板匹配 )
 %   1.选择gcp在图像坐标系中的坐标(U,V) 
@@ -7,6 +7,7 @@ function gcpInfo =  getGcpInfo_UV(imagePath,gcpSavePath,mode)
 %   4*.判断是否每张图片都需要计算一次外参
 
     if nargin < 3
+        Fs = 2; % 默认频率为2Hz
         mode = 1;  %默认模式为以第一帧的gcp坐标为匹配基准
     end
 
@@ -163,6 +164,7 @@ function gcpInfo =  getGcpInfo_UV(imagePath,gcpSavePath,mode)
         for k=1:length(UVsave(:,1))
             gcp(k).UVd=UVsave(k,2:3);
             gcp(k).num=UVsave(k,1);
+            gcp(k).Fs = Fs;
             if mode == 2 
                 gcp(k).template = Tsave(k).tp;
             end

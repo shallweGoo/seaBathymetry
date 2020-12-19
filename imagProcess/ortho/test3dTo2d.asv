@@ -2,7 +2,7 @@
 addpath('E:/Program Files (x86)/mexopencv-master');
 addpath('E:/Program Files (x86)/mexopencv-master/opencv_contrib');
 addpath('./coordination transformation')
-addpath(genpath('./ProcessFromVideo/'))
+addpath('./ProcessFromVideo/')
 %% gcp的真实世界坐标（以自己建的坐标系）和像素坐标
 gcp_llh =[[22.5948224,114.8764800,7.41];
 [22.5952560,114.8767744,7.53];
@@ -40,8 +40,6 @@ objectPointsInCs = objectPointsInCs';
 
 load('./ProcessFromVideo/gcpInfo_world.mat');
 load('./ProcessFromVideo/gcpInfo_firstFrame.mat');
-load('intrinsicMat.mat');
-
 for i = 1:size(gcpInfo_world,1)
     new_gcp(i).UVd = world2image(cameraMatrix,Re_c,tvec,gcpInfo_world(i,:)');
 end

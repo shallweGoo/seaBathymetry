@@ -1,6 +1,6 @@
 % ∂‘ÀÆ…Óª≠Õº
 %
-function dc = plotBathy(WorldCor,DepthInfo)
+function plotBathy(WorldCor,DepthInfo)
     % set up the figure
     set(gcf,'RendererMode','manual','Renderer','painters');
     cmap = colormap( 'jet' );
