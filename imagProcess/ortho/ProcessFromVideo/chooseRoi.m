@@ -4,9 +4,6 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
 %   roi_y为感兴趣的区域y轴的范围，形式应为[y1,y2];
 %   在算世界坐标时已经进行了旋转，可能原点那些都不用重新指定了
 
-
-    addpath(genpath('./CoreFunctions'));
-
     
     tmp1 = load(gcpInfo_path);
     gcp = tmp1.gcp;
@@ -78,7 +75,7 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
     % rectification of a single frame, so z is considered constant in time.
     % Value should be entered in the World Coordinate system and units.
 
-    iz = 0;
+    iz = 0; %选择区域时默认区域的z值为0（海平面）
 
 
 
@@ -176,7 +173,8 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
     %  Assign Input Grid to Wolrd/Local, and rotate accordingly depending on
     %  inputLocalFlag
 
-    % If World Entered
+    % 输入的参数为世界坐标的参数
+    
     if localFlagInput==0
         % Assign World Grid as Input Grid
         X=iX;
@@ -185,11 +183,10 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
 
         % Assign local Grid as Rotated input Grid
         [ localX,localY]=localTransformEquiGrid(localOrigin,localAngle,1,iX,iY);
-        localZ=localX.*0+iz;
+        localZ=localX.*0+iz; %z值基本设为0，对结果好像没有显著性的影响
 
     end
-
-    % If entered as Local
+    %输入的参数为本地坐标
     if localFlagInput==1
         % Assign local Grid as Input Grid
         localX=iX;
@@ -198,7 +195,7 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
 
         % Assign world Grid as Rotated local Grid
         [X,Y]=localTransformEquiGrid(localOrigin,localAngle,0,iX,iY);
-        Z=X*.0+iz;
+        Z=X*.0+iz; %z值基本设为0，对结果好像没有显著性的影响
     end
 
 
@@ -219,13 +216,12 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
     % World Rectification
     [Ir]= imageRectifier(I,intrinsics,extrinsics,X,Y,Z,teachingMode);
     % Specify Title
-    subplot(2,2,[2 4])
-    title(worldCoord)
+    subplot(2,2,[2 4]);
+    title(worldCoord);
 
-
+    localIr = [];
     % Local Rectification (If specified)
     if localOrigin~=[0,0] & localAngle ~= 0
-
         [localIr]= imageRectifier(I,intrinsics,localExtrinsics,localX,localY,localZ,teachingMode);
 
         % Specify Title
@@ -245,8 +241,9 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
     % Save Images
     imwrite(flipud(Ir),[savePath  'World.png' ])
 
-    imwrite(flipud(localIr),[savePath 'Local.png' ])
-
+    if isempty(localIr) == 0
+        imwrite(flipud(localIr),[savePath 'Local.png' ])
+    end
        
 
 end

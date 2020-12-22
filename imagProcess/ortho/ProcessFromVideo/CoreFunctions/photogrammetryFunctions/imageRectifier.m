@@ -48,7 +48,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function [Ir]= imageRectification(I,intrinsics,extrinsics,X,Y,Z,teachingMode)
+function [Ir]= imageRectifier(I,intrinsics,extrinsics,X,Y,Z,teachingMode)
 
 %% Section 1: Determine if MultiCam or Single Cam
 % If input is for a singular camera and not already a cell, it will make it
@@ -58,6 +58,7 @@ chk=iscell(intrinsics);
 if chk==1
     camnum=length(intrinsics);
 else
+    %这个else里的作用只是方便数据统一格式，如果前面程序没有大改忽略这个else
     camnum=1;
     Ip=I;
     extrinsicsp=extrinsics;
@@ -76,12 +77,10 @@ end
 
 %% Section 2: Format Grid for xyz2DistUV
 
-x=reshape(X,1,numel(X));
+x=reshape(X,1,numel(X));  % reshape之后的size应当与原数据size相同
 y=reshape(Y,1,numel(Y));
 z=reshape(Z,1,numel(Z));
 xyz=cat(2,x',y',z');
-
-
 
 
 
@@ -103,6 +102,7 @@ for k=1:camnum
     Ud=round(Ud);
     Vd=round(Vd);
     
+    
     % Utalize Flag to remove invalid points. See xyzDistUV and distortUV to see
     % what is considered an invalid point.
     Ud(find(flag==0))=nan;
@@ -116,27 +116,30 @@ for k=1:camnum
     
     % Initiate Ir matrix as same size as input X,Y,Z but with aditional third
     % dimension for rgb values.
-    ir=nan(s(1),s(2),3);
+    ir=nan(s(1),s(2),3); %初始化一个3层的rgb图
     
     % Pull rgb pixel intensities for each point in XYZ
-    for kk=1:s(1)
-        for j=1:s(2)
+    for kk=1:s(1) %s(1)对应图像矩阵的行，也是V
+        for j=1:s(2)%s(2)对应图像矩阵的列，为U
             % Make sure not a bad coordinate
-            if isnan(Ud(kk,j))==0 & isnan(Vd(kk,j))==0
+            if isnan(Ud(kk,j))==0 && isnan(Vd(kk,j))==0
                 % Note how Matlab organizes images, V coordinate corresponds to
                 % rows, U to columns. V is 1 at top of matrix, and grows as it
                 % goes down. U is 1 at left side of matrix and grows from left
                 % to right.
-                ir(kk,j,:)=I{k}(Vd(kk,j),Ud(kk,j),:);
+                
+                % matlab储存图像是以矩阵形式储存，则列对应着U,行对应V,注意对应好
+                ir(kk,j,:)=I{k}(Vd(kk,j),Ud(kk,j),:); %Vd()对应行坐标，Ud()对应列坐标，这样可以从原图中找到对应的像素值
             end
         end
     end
     
     % Save Rectifications from Each Camera into A Matrix
-    IrIndv(:,:,:,k)=uint8(ir);
+    % 存储rgb图，如果是灰度图也可直接储存进去
+    IrIndv(:,:,:,k) = uint8(ir);
     
     % Save Ud Vd coordinates for Plotting in Teaching Mode
-    if teachingMode==1
+    if teachingMode == 1
         Udp{k}=Ud;
         Vdp{k}=Vd;
     end

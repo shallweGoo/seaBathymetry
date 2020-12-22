@@ -37,7 +37,7 @@ function rectificationPlotter(I,X,Y,imageFlag)
 if imageFlag==1
     imagesc(X(1,:),Y(:,1),I) %imagesc assumes grid is valid meshgrid and
     %only allows vector input
-    
+%     imagesc(X(1,:),flip(Y(:,1)),I) % 测试用，让Y从大到小映射
 end
 
 
@@ -46,9 +46,7 @@ end
 
 %% Section 2: If Pcolor Gray Image Is desired
 if imageFlag==0
-    
-    
-    
+
     try
         pcolor(X,Y,rgb2gray(I))
     catch

@@ -52,7 +52,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function [Xout Yout]= localTransformExtrinsics(localOrigin,localAngle,directionFlag,Xin,Yin)
+function [Xout,Yout]= localTransformEquiGrid(localOrigin,localAngle,directionFlag,Xin,Yin)
 
 
 
@@ -76,12 +76,12 @@ end
 
 %World to Local
 if directionFlag==1
-    [ oCorners(:,1) oCorners(:,2)]= localTransformPoints(localOrigin,localAngle,1,iCorners(:,1),iCorners(:,2));
+    [ oCorners(:,1),oCorners(:,2)]= localTransformPoints(localOrigin,localAngle,1,iCorners(:,1),iCorners(:,2));
 end
 
 %Local to World
 if directionFlag==0
-    [ oCorners(:,1) oCorners(:,2)]= localTransformPoints(localOrigin,localAngle,0,iCorners(:,1),iCorners(:,2));
+    [ oCorners(:,1),oCorners(:,2)]= localTransformPoints(localOrigin,localAngle,0,iCorners(:,1),iCorners(:,2));
     
 end
 
@@ -93,7 +93,7 @@ oylim=[min(oCorners(:,2))  max(oCorners(:,2)) ];
 %% Section 3: Create Equidistant Rotated Grid
 
 %  Make Horizontal input Grid with same input resolution
-[Xout Yout]=meshgrid([oxlim(1):idxdy:oxlim(2)],[oylim(1):idxdy:oylim(2)]);
+[Xout,Yout]=meshgrid([oxlim(1):idxdy:oxlim(2)],[oylim(1):idxdy:oylim(2)]);
 
 
 

@@ -21,7 +21,10 @@
 
 %  Required CIRN Functions:
 %  None
+
+%  用于校正畸变
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 function [Ud,Vd,flag] = distortUV(U,V,intrinsics)
 

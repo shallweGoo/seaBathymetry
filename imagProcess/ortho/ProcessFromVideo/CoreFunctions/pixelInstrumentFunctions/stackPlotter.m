@@ -94,7 +94,7 @@ end
 % If The user entered a grayscale image
 if length(s)==2 % if the size vector has 2 dimenions.
     % make Grid for pcolor
-    [H V]=meshgrid(hVect,vVect);
+    [H,V]=meshgrid(hVect,vVect);
     pcolor(H,V,(Ip))
     shading flat
     colormap(gray)

@@ -38,51 +38,53 @@ objectPointsInCs = objectPointsInCs';
 [Re_c, tvec] = gcpForCamExtrinsic(cameraMatrix,objectPointsInCs,imagePoints);
 
 
-load('./ProcessFromVideo/gcpInfo_world.mat');
-load('./ProcessFromVideo/gcpInfo_firstFrame.mat');
-load('intrinsicMat.mat');
+%% 和Re_c对比用
 
-for i = 1:size(gcpInfo_world,1)
-    new_gcp(i).UVd = world2image(cameraMatrix,Re_c,tvec,gcpInfo_world(i,:)');
-end
-
-imshow('./1.jpg');
-hold on;
-for k=1:length(gcp)
-    % Clicked Values
-    h1=plot(gcp(k).UVd(1),gcp(k).UVd(2),'ro','markersize',10,'linewidth',3);
-    text(gcp(k).UVd(1)+30,gcp(k).UVd(2),num2str(gcp(k).num),'color','r','fontweight','bold','fontsize',15)
-
-    % New Reprojected Values
-    h2=plot(new_gcp(k).UVd(1),new_gcp(k).UVd(2),'yo','markersize',10,'linewidth',3);
-    text(new_gcp(k).UVd(1)+30,new_gcp(k).UVd(2),num2str(gcp(k).num),'color','y','fontweight','bold','fontsize',15)
-end
-
-
-
-for k =1:length(gcp)
-
-    % Assumes Z is the known value; Reproject World XYZ from Clicked UVd
-    [xyzReproj(k,:)] = distUV2XYZ(intrinsics,extrinsics,[gcp(k).UVd(1); gcp(k).UVd(2)],'z',gcp(k).z);
-
-    % Calculate Difference from Surveyd GCP World Coordinates
-    gcp(k).xReprojError=xyzCheck(k,1)-xyzReproj(k,1);
-    gcp(k).yReprojError=xyzCheck(k,2)-xyzReproj(k,2);
-
-end
-
-rms=sqrt(nanmean((xyzCheck-xyzReproj).^2));
-
-% Display the results
-disp(' ')
-disp('Horizontal GCP Reprojection Error')
-disp( ('GCP Num / X Err /  YErr'))
-
-for k=1:length(gcp)
-    disp( ([num2str(gcp(k).num) '/' num2str(gcp(k).xReprojError) '/' num2str(gcp(k).yReprojError) ]));
-end
+% load('./ProcessFromVideo/gcpInfo_world.mat');
+% load('./ProcessFromVideo/gcpInfo_firstFrame.mat');
+% load('intrinsicMat.mat');
+% 
+% for i = 1:size(gcpInfo_world,1)
+%     new_gcp(i).UVd = world2image(cameraMatrix,Re_c,tvec,gcpInfo_world(i,:)');
+% end
+% 
+% imshow('./1.jpg');
+% hold on;
+% for k=1:length(gcp)
+%     % Clicked Values
+%     h1=plot(gcp(k).UVd(1),gcp(k).UVd(2),'ro','markersize',10,'linewidth',3);
+%     text(gcp(k).UVd(1)+30,gcp(k).UVd(2),num2str(gcp(k).num),'color','r','fontweight','bold','fontsize',15)
+% 
+%     % New Reprojected Values
+%     h2=plot(new_gcp(k).UVd(1),new_gcp(k).UVd(2),'yo','markersize',10,'linewidth',3);
+%     text(new_gcp(k).UVd(1)+30,new_gcp(k).UVd(2),num2str(gcp(k).num),'color','y','fontweight','bold','fontsize',15)
+% end
 
 
+
+% for k =1:length(gcp)
+% 
+%     % Assumes Z is the known value; Reproject World XYZ from Clicked UVd
+%     [xyzReproj(k,:)] = distUV2XYZ(intrinsics,extrinsics,[gcp(k).UVd(1); gcp(k).UVd(2)],'z',gcp(k).z);
+% 
+%     % Calculate Difference from Surveyd GCP World Coordinates
+%     gcp(k).xReprojError=xyzCheck(k,1)-xyzReproj(k,1);
+%     gcp(k).yReprojError=xyzCheck(k,2)-xyzReproj(k,2);
+% 
+% end
+
+% rms=sqrt(nanmean((xyzCheck-xyzReproj).^2));
+% 
+% % Display the results
+% disp(' ')
+% disp('Horizontal GCP Reprojection Error')
+% disp( ('GCP Num / X Err /  YErr'))
+% 
+% for k=1:length(gcp)
+%     disp( ([num2str(gcp(k).num) '/' num2str(gcp(k).xReprojError) '/' num2str(gcp(k).yReprojError) ]));
+% end
+
+%%
 
 
 

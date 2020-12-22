@@ -44,7 +44,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function [pixInst]=pixInstPrepXYZ(pixInst);
+function [pixInst]=pixInstPrepXYZ(pixInst)
 
 
 %% Section 1: Initiate Loop
@@ -56,8 +56,9 @@ for k=1:length(pixInst)
     if strcmp(pixInst(k).type,'Grid')==1
         x=pixInst(k).xlim(1):pixInst(k).dx:pixInst(k).xlim(2);
         y=pixInst(k).ylim(1):pixInst(k).dy:pixInst(k).ylim(2);
-        [pixInst(k).X pixInst(k).Y]=meshgrid(x,y);
-        
+        [pixInst(k).X,pixInst(k).Y]=meshgrid(x,y); 
+        %pixInst(k).X和pixInst(k).Y维度都为length(y)行length(x)列
+        %pixInst(k).X每一行是x的一个副本，pixInst(k).Y每一列是y的一个副本，具体查看help meshgrid
     end
     
     
