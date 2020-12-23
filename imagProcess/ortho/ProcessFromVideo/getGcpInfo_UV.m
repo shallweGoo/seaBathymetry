@@ -1,26 +1,26 @@
-function gcpInfo =  getGcpInfo_UV(imagePath,gcpSavePath,Fs,mode)
-%   该函数计算外参 (内参已经由相机标定得出)
-%   分步(可分为两种方法 1)存下第一帧的gcp坐标,并以此为标准 2)存在第一帧的gcp模板，用于后面的模板匹配 )
-%   1.选择gcp在图像坐标系中的坐标(U,V) 
-%   2.获取gcp在现实世界中的坐标(X,Y)
-%   3.最小二乘法（非线性优化）得到外参（旋转矩阵、平移向量）
-%   4*.判断是否每张图片都需要计算一次外参
+function gcpInfo =  getGcpInfo_UV(imagePath,gcpSavePath,fs,mode)
+    %该函数计算外参 (内参已经由相机标定得出)
+    %分步(可分为两种方法 1)存下第一帧的gcp坐标,并以此为标准 2)存在第一帧的gcp模板，用于后面的模板匹配 )
+    %1.选择gcp在图像坐标系中的坐标(U,V) 
+    %2.获取gcp在现实世界中的坐标(X,Y)
+    %3.最小二乘法（非线性优化）得到外参（旋转矩阵、平移向量）
+    %4.每张图片都需要计算一次外参
+
+    %mode1 方法为获取控制点的坐标
+    %mode2 方式为模板匹配 除了获取控制点的坐标之外还获取其模板
 
     if nargin < 3
-        Fs = 2; % 默认频率为2Hz
+        fs = 2; % 默认频率为2Hz
         mode = 1;  %默认模式为以第一帧的gcp坐标为匹配基准
     end
 
-     % 该函数实现第一步
-    % 1.选择gcp在图像坐标系中的坐标(U,V).
     
     
     unvalid = -99;
     saveName = 'gcpInfo';
     
     
-    %mode1 方法为获取控制点的坐标
-    %mode2 方式为模板匹配 获取控制点的坐标和模板
+
    
    
     %%
@@ -164,7 +164,7 @@ function gcpInfo =  getGcpInfo_UV(imagePath,gcpSavePath,Fs,mode)
         for k=1:length(UVsave(:,1))
             gcp(k).UVd=UVsave(k,2:3);
             gcp(k).num=UVsave(k,1);
-            gcp(k).Fs = Fs;
+            gcp(k).Fs = fs;
             if mode == 2 
                 gcp(k).template = Tsave(k).tp;
             end

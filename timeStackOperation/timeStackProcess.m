@@ -3,7 +3,7 @@
 clear 
 clc
 %% 在指定路径创建文件夹
-dir_ind = 3;
+dir_ind = 7;
 dir_ind = num2str(dir_ind);
 fileInfo.file_dir.dir_name = "F:\workSpace\matlabWork\dispersion\selectPic\afterPer\双月湾第二组变换后\变换后图片"+dir_ind+"相关处理\";
 fileInfo.file_dir.res_dir = ["变换后图片"+dir_ind+"时间堆栈","变换后图片"+dir_ind+"带通滤波","变换后图片"+dir_ind+"数据截断","最终元胞数据","最终结果"];
@@ -25,7 +25,7 @@ tmp=imread(fileInfo.org_imag.file_path+fileInfo.org_imag.pic_name(1));
 [fileInfo.org_imag.pic_row,fileInfo.org_imag.pic_col] = size(tmp);
 
 %% 调用fullTimeStack.m
-% fullTimestack(fileInfo);
+fullTimestack(fileInfo);
 
 %% 建立bpFilterForTimeStack所需要的信息
 fileInfo.time_stack.file_path = fileInfo.file_dir.dir_name+fileInfo.file_dir.res_dir(1)+"\";
@@ -38,8 +38,9 @@ fileInfo.time_stack.file_num = length(fileInfo.time_stack.file_name);
 
 
 % bp_filter信息
+fs = 2;
 fileInfo.bp_filter.file_path = fileInfo.file_dir.dir_name+fileInfo.file_dir.res_dir(2)+"\";
-fileInfo.bp_filter.used_filter = load("F:\workSpace\matlabWork\dispersion\filter_mat\bpfilter0.05_0.5Fs2.mat"); %注意修改对应的滤波器
+fileInfo.bp_filter.used_filter = load(['F:/workSpace/matlabWork/dispersion/filter_mat/bpfilter0.05_0.5Fs' num2str(fs) '.mat']); %注意修改对应的滤波器
 fileInfo.bp_filter.file_name = string(ls(fileInfo.bp_filter.file_path));
 fileInfo.bp_filter.file_name = fileInfo.bp_filter.file_name(3:end);
 fileInfo.bp_filter.file_num = length(fileInfo.bp_filter.file_name);
@@ -49,8 +50,8 @@ fileInfo.partition.file_path = fileInfo.file_dir.dir_name+fileInfo.file_dir.res_
 fileInfo.partition.file_name = string(ls(fileInfo.partition.file_path));
 fileInfo.partition.file_name = fileInfo.partition.file_name(3:end);
 fileInfo.partition.file_num = length(fileInfo.partition.file_name);
-fileInfo.partition.begin = 100;
-fileInfo.partition.end = 900;
+fileInfo.partition.begin = 50;
+fileInfo.partition.end = 400;
 
 
 

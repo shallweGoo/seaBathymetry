@@ -1,4 +1,4 @@
-function scpInfo = getScpInfo(gcp,savePath,Fs,brightFlag)
+function scpInfo = getScpInfo(gcp_path,savePath,fs,brightFlag)
 % GETSCPINFO 该函数获取关于scp（stable control point）的信息，用于后面的gcp的匹配，CRIN方法
 % 选取的方法和选取gcp的方式一样，用鼠标点击的方式
 % 利用颜色阈值，用均值计算中心的方法
@@ -6,17 +6,18 @@ function scpInfo = getScpInfo(gcp,savePath,Fs,brightFlag)
 
 
     if nargin < 3
-        Fs = 2;
+        fs = 2;
         brightFlag = 'bright';
     elseif nargin < 4
             brightFlag = 'bright';
     end
     
     
-    %  添加核心函数
-    addpath(genpath('./CoreFunctions/'));
+    tmp = load(gcp_path);
+    gcp = tmp.gcp;
+    clear tmp;
     
-    imagePath = gcp(1).imagePath;
+    imagePath = gcp.imagePath;
     saveName = 'scpInfo';
     
     if isempty(imagePath)==0
@@ -232,7 +233,7 @@ function scpInfo = getScpInfo(gcp,savePath,Fs,brightFlag)
     % Incorporate imagePath in structure
     for k=1:length(scp)
         scp(k).imagePath=imagePath;
-        scp(k).Fs = Fs;
+        scp(k).Fs = fs;
     end
     
     % 储存scp这个结构体

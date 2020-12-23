@@ -3,7 +3,7 @@ dbstop if all error  % 方便调试
 
 
 % addpath('./filter/'); 
-addpath('./selectPic/');
+% addpath('./selectPic/');
 % addpath('./imagProcess/');
 addpath('./timeStackOperation/')
 %% 先进行图片基本信息的录入
@@ -87,7 +87,7 @@ fixed_time = 3;
 %设置使用的方法
 %1为
 %2为固定时间为3s,即fixed_time = 3时所成为的点;
-mode = 1; 
+mode = 2; 
 
 
 % 固定波长
@@ -120,6 +120,7 @@ if mode == 1
     %     t1 = cputime;
         [point.f(:,i),point.speed(:,i)] = corForFandC(picInfo,i,cpsdVar);
         seaDepth(:,i) = fixedTimeForCalDepth(point.speed(:,i),point.f(:,i));
+        disp(['progress:' num2str(i/picInfo.col*100) '% completed']);
     %     run_time = cputime-t1;
     end
     
@@ -137,6 +138,7 @@ elseif mode == 2
 %         point.f(:,i) = fixedTimeCorForF(idx,i,picInfo,cpsdVar);
         point.f(:,i) = fixedTimeCorForF_PS(i,picInfo,cpsdVar);
         seaDepth(:,i) = fixedTimeForCalDepth(point.speed(:,i),point.f(:,i));
+        disp(['progress:' num2str(i/picInfo.col*100) '% completed']);
     end
     % 加平滑处理的过程
     
@@ -150,7 +152,7 @@ end
 %     mean_seaDepth = seaDepth;
 %     for i = 1:picInfo.col
 %         for j = 1:5:picInfo.row
-%             if j+2<=picInfo.row
+%             if j+2 <= picInfo.row
 %                 mean_seaDepth(j:j+5,i) = mean(seaDepth(j:j+2,i));
 %             else
 %                 mean_seaDepth(j:end,i) = mean(seaDepth(j:end,i));

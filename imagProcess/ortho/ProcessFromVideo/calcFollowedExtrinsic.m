@@ -21,8 +21,10 @@ function  calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrin
     
     tmp1 = load(scp_path);
     scp = tmp1.scp;
+    
     tmp2 = load(gcp_path);
     gcp = tmp2.gcp;
+    
     tmp3 = load(rotateInfo_path);
     extrinsics = tmp3.extrinsics;
     intrinsics = tmp3.intrinsics;
@@ -31,7 +33,7 @@ function  calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrin
     
     clear tmp1;
     clear tmp2;
-
+    clear tmp3;
     
     
     if mode == 1  %模式1采用CRIN的方法进行计算

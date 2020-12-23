@@ -3,7 +3,7 @@ clear;
 %% 先进行图片基本信息的录入
 %  picInfo.file_path =  "F:\workSpace\matlabWork\dispersion\selectPic\afterPer\双月湾第二组变换后\变换后图片1\";% 图像文件夹路径
 %  对应组别序号
- picInfo.idx = 3;
+ picInfo.idx = 7;
  picInfo.idx = num2str(picInfo.idx);
  
  picInfo.file_path =  "F:\workSpace\matlabWork\dispersion\selectPic\afterPer\双月湾第二组变换后\变换后图片"+picInfo.idx+"\";% 图像文件夹路径
@@ -26,7 +26,7 @@ cpsdVar.f = 400;%点数为f/2
 world.crossShoreRange = 180;
 world.longShoreRange = 135;
 
-if picInfo.idx == '1'
+if picInfo.idx == '1' || picInfo.idx == '7'
     %进行频率估计所需要的结构体
     cpsdVar.Fs = 2;%采样频率，单位hz
     picInfo.timeInterval = 1/cpsdVar.Fs; %单位s 
@@ -55,8 +55,8 @@ cpsdVar.waveHigh = 0.2;
 
 
 %画图所需世界坐标信息
-%     world.crossShoreRange = 180;
-%     world.longShoreRange = 135;
+    world.crossShoreRange = 200;
+    world.longShoreRange = 90;
     
     
     

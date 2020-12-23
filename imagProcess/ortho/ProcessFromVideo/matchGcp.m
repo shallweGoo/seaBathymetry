@@ -1,11 +1,6 @@
-function matchGcp(gcpInfo_UV_path,gcpInfo_world_path,savePath,mode,gcpsUsed)
+function matchGcp(gcpInfo_UV_path,gcpInfo_world_path,intrinsic_path,savePath,mode)
 %calcRotateMatrix 根据第一帧的控制点来匹配接下来帧的控制点
 %
-
-% 输入参数介绍
-% gcpInfo分别为gcpInfo的
-    
-% cmPara为相机参数
     
 
 % ***mode为拟采用的每帧gcp匹配模式
@@ -13,7 +8,6 @@ function matchGcp(gcpInfo_UV_path,gcpInfo_world_path,savePath,mode,gcpsUsed)
 % ***mode2为 自己做的模板匹配
 
 
-    addpath(genpath('./CoreFunctions'));
     
     %载入gcpInfo_UV和gcpInfo_World数据
     
@@ -26,23 +20,24 @@ function matchGcp(gcpInfo_UV_path,gcpInfo_world_path,savePath,mode,gcpsUsed)
     clear tmp1;
     clear tmp2;
     
-    load('./neededData/intrinsicMat.mat');
-    iopath = './neededData/intrinsicMat.mat';
+    tmp3 = load(intrinsic_path);
+    intrinsics = tmp3.intrinsics;
+    iopath = intrinsic_path;
+    
     gcpUvdPath = gcpInfo_UV_path;
     gcpXyzPath = gcpInfo_world_path;
     
     saveName = 'RotateInfo'; %存放的是外参和内参信息，统一称为旋转信息
     
-    if nargin < 3
+    if nargin < 5
         %默认为CRIN非线性拟合nlinfit计算外参
         mode = 1;
-        savePath = './';
-        gcpsUsed = [];
-        for i = 1 : size(gcpInfo_world,1)  %默认全部使用
-            gcpsUsed = cat(2,gcpsUsed,i);
-        end
     end
     
+    gcpsUsed = []; % 函数默认使用全部的gcp
+    for i = 1 : size(gcpInfo_world,1)  %默认全部使用
+        gcpsUsed = cat(2,gcpsUsed,i);
+    end
     
     
     gcpCoord = '现实坐标系：x轴垂直于岸，y轴平行于岸 ';
