@@ -1,11 +1,9 @@
 function matchGcp(gcpInfo_UV_path,gcpInfo_world_path,intrinsic_path,savePath,mode)
-%calcRotateMatrix 根据第一帧的控制点来匹配接下来帧的控制点
-%
-    
-
-% ***mode为拟采用的每帧gcp匹配模式
-% ***mode1为 CRIN 的阈值匹配，非线性拟合（优化）得到外参
-% ***mode2为 自己做的模板匹配
+%calcRotateMatrix 根据第一帧的控制点外参，采用的是非线性拟合的方式，
+%实际上可以通过solvePnP问题来解决
+% mode = 1,nlinfit
+% mode = 2,solvePnP
+               
 
 
     
@@ -29,10 +27,10 @@ function matchGcp(gcpInfo_UV_path,gcpInfo_world_path,intrinsic_path,savePath,mod
     
     saveName = 'RotateInfo'; %存放的是外参和内参信息，统一称为旋转信息
     
-    if nargin < 5
-        %默认为CRIN非线性拟合nlinfit计算外参
-        mode = 1;
-    end
+%     if nargin < 5
+%         %默认为CRIN非线性拟合nlinfit计算外参
+%         mode = 1;
+%     end
     
     gcpsUsed = []; % 函数默认使用全部的gcp
     for i = 1 : size(gcpInfo_world,1)  %默认全部使用
@@ -88,7 +86,12 @@ function matchGcp(gcpInfo_UV_path,gcpInfo_world_path,intrinsic_path,savePath,mod
     %用一个非线性优化去求解外参矩阵
     [extrinsics,extrinsicsError]= extrinsicsSolver(extrinsicsInitialGuess,extrinsicsKnownsFlag,intrinsics,UVd,xyz);
     extrinsicsInitialGuess= [20 20 100 deg2rad(45) deg2rad(0) deg2rad(0)]; % [ x y z azimuth tilt swing]
-
+    % azimuth ：以世界坐标系的z轴为旋转轴，顺时针旋转提供正向角度。
+    % tilt ：俯仰角，以摄像头水平方向为+90°，向上减少到0°，向下增加到180°。
+    % swing ：滚动角，相机水平为0°，逆时针旋转提供正向的角度。
+    
+    
+    
     % 展示xyz(相机在世界坐标系下的坐标)，和三个方位角信息，方位角定位的有点乱
     disp(' ')
     disp('Solved Extrinsics and NLinfit Error')
