@@ -3,8 +3,8 @@
 
 %timeStack得到的只是一列的时间堆栈，所以要得到整张图片就会很麻烦
 function res = fixedTimeForCor(timeStack_org,timeStack_fixedTime)
-    noNeedDistance = 50; %按照这个像素值就差不多是岸上了，实际上就算是岸上的点也会有互相关，我不知道哪里出问题
-    PredictRange = 49; %在PredictRange个点之间预测互相关最大值
+    noNeedDistance = 100; %按照这个像素值就差不多是岸上了，实际上就算是岸上的点也会有互相关，我不知道哪里出问题
+    PredictRange = 80; %在PredictRange个点之间预测互相关最大值
     row = size(timeStack_org,1);
     cor_val =NaN(1,PredictRange);
     res = NaN(row,PredictRange);

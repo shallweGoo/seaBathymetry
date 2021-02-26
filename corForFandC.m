@@ -19,8 +19,8 @@ function [f,c] = corForFandC(picInfo,currentCol,cpsdVar)
     
     % 设置互相关估计的距离限制，目前想的是在20个之外（10m）之外进行相关系数最大的选取
     % 该参数的设置与空间分辨率有关，当暂时以10m为标准
-    ov_range = 20; % 想要忽视的距离
-    
+    ov_range = 10; % 想要忽视的距离，单位为米(m)
+    ov_range = round(ov_range/picInfo.pixel2Distance);
     dst_itv = 4;%每隔几点来进行一次互相关计算
     
     for i = picInfo.row:-1:aRange %从第最后一行开始向前计算
@@ -100,7 +100,7 @@ function [f,c] = corForFandC(picInfo,currentCol,cpsdVar)
         timeLag = flip(abs(timeLag)); %时滞计算
         
         for idx = 2:size(timeLag,2)      %由于信号的种种原因，时间并不会展现递增的规律，或出现跳变，所以此时需要筛选时间信号
-             if timeLag(idx)<timeLag(idx-1) || timeLag(idx)>timeLag(idx-1)+20
+             if timeLag(idx)<timeLag(idx-1) || timeLag(idx)>timeLag(idx-1)+5
                     break;
              end
         end
@@ -116,7 +116,7 @@ function [f,c] = corForFandC(picInfo,currentCol,cpsdVar)
         %         linearCurve = polyfit(abs(time_lag),shoreDistance,1); % 拟合进行中点处速度的计算
         
         
-        %debug相关
+%%%%%%%%%%%%%%%%%%%%%%%%debug相关
 %         figure(3);
 %         plot(timeLag,shoreDistance,'r*');
 %         hold on;

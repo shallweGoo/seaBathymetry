@@ -3,7 +3,7 @@
 clear 
 clc
 %% 在指定路径创建文件夹
-dir_ind = 7;
+dir_ind = 15;
 dir_ind = num2str(dir_ind);
 fileInfo.file_dir.dir_name = "F:\workSpace\matlabWork\dispersion\selectPic\afterPer\双月湾第二组变换后\变换后图片"+dir_ind+"相关处理\";
 fileInfo.file_dir.res_dir = ["变换后图片"+dir_ind+"时间堆栈","变换后图片"+dir_ind+"带通滤波","变换后图片"+dir_ind+"数据截断","最终元胞数据","最终结果"];
@@ -50,8 +50,8 @@ fileInfo.partition.file_path = fileInfo.file_dir.dir_name+fileInfo.file_dir.res_
 fileInfo.partition.file_name = string(ls(fileInfo.partition.file_path));
 fileInfo.partition.file_name = fileInfo.partition.file_name(3:end);
 fileInfo.partition.file_num = length(fileInfo.partition.file_name);
-fileInfo.partition.begin = 50;
-fileInfo.partition.end = 400;
+fileInfo.partition.begin = 100;
+fileInfo.partition.end = 1100;
 
 
 

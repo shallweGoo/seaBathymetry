@@ -44,10 +44,12 @@ function  calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrin
         %  C_singleExtrinsicsSolution (initialCamSolutionMeta.impath). It should be
         %  in the same directory as your other colleciton images imagesDirectory.
 
-        ind =  find(scp(1).imagePath == '/');
-        firstFrame= scp(1).imagePath(ind(end)+1:end); %第一帧图像路径
+        imagePath = char(scp(1).imagePath);
+        ind =  find(imagePath == '/');
+        firstFrame= imagePath((ind(end)+1):end); %第一帧图像路径
         clear ind;
-        
+        clear imagePath;
+
         
         
         saveName = 'extrinsicFullyInfo';

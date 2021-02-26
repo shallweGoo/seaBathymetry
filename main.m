@@ -81,13 +81,12 @@ point.f = zeros(picInfo.row,picInfo.col);
 
 %  从离岸最远的像素点进行估计,顺便进行深度反演
 seaDepth = NaN(picInfo.row,picInfo.col);
-% load()
 fixed_time = 3;
 
 %设置使用的方法
-%1为
+%1为中点取速度法
 %2为固定时间为3s,即fixed_time = 3时所成为的点;
-mode = 2; 
+mode = 2;
 
 
 % 固定波长
@@ -199,6 +198,22 @@ if mode == 1
     
 end
    
+
+
+%% 1m*1m的区块,0.5m分辨率的话
+
+
+
+            
+            
+
+
+
+
+
+
+
+
 
     
 

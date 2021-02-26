@@ -1,9 +1,13 @@
 clear;
+% 需要修改的参数
+% 对应组别序号 picInfo.idx
+
+
 
 %% 先进行图片基本信息的录入
 %  picInfo.file_path =  "F:\workSpace\matlabWork\dispersion\selectPic\afterPer\双月湾第二组变换后\变换后图片1\";% 图像文件夹路径
 %  对应组别序号
- picInfo.idx = 7;
+ picInfo.idx = 14;
  picInfo.idx = num2str(picInfo.idx);
  
  picInfo.file_path =  "F:\workSpace\matlabWork\dispersion\selectPic\afterPer\双月湾第二组变换后\变换后图片"+picInfo.idx+"\";% 图像文件夹路径
@@ -26,27 +30,27 @@ cpsdVar.f = 400;%点数为f/2
 world.crossShoreRange = 180;
 world.longShoreRange = 135;
 
-if picInfo.idx == '1' || picInfo.idx == '7'
-    %进行频率估计所需要的结构体
-    cpsdVar.Fs = 2;%采样频率，单位hz
-    picInfo.timeInterval = 1/cpsdVar.Fs; %单位s 
-    picInfo.pixel2Distance = 0.5; %单位米
-elseif picInfo.idx == '2'
-    cpsdVar.Fs = 6;%采样频率，单位hz
-    picInfo.timeInterval = 1/cpsdVar.Fs; %单位s 
-    picInfo.pixel2Distance = 0.2; %单位米
-else
-    cpsdVar.Fs = 6;%采样频率，单位hz
-    picInfo.timeInterval = 1/cpsdVar.Fs; %单位s 
-    picInfo.pixel2Distance = 0.5; %单位米
-    if picInfo.idx == '4'
-        world.crossShoreRange = 180;
-        world.longShoreRange = 100;
-    elseif picInfo.idx == '5'|| picInfo.idx == '6'
-        world.crossShoreRange = 215;
-        world.longShoreRange = 115;
-    end
-end
+% if picInfo.idx == '1' || picInfo.idx == '9'
+%     %进行频率估计所需要的结构体
+%     cpsdVar.Fs = 2;%采样频率，单位hz
+%     picInfo.timeInterval = 1/cpsdVar.Fs; %单位s 
+%     picInfo.pixel2Distance = 0.5; %单位米
+% elseif picInfo.idx == '2'
+%     cpsdVar.Fs = 6;%采样频率，单位hz
+%     picInfo.timeInterval = 1/cpsdVar.Fs; %单位s 
+%     picInfo.pixel2Distance = 0.2; %单位米
+% else
+%     cpsdVar.Fs = 6;%采样频率，单位hz
+%     picInfo.timeInterval = 1/cpsdVar.Fs; %单位s 
+%     picInfo.pixel2Distance = 0.5; %单位米
+%     if picInfo.idx == '4'
+%         world.crossShoreRange = 180;
+%         world.longShoreRange = 100;
+%     elseif picInfo.idx == '5'|| picInfo.idx == '6'
+%         world.crossShoreRange = 215;
+%         world.longShoreRange = 115;
+%     end
+% end
  
  
 % 频率选择的区间影响很大
@@ -54,12 +58,26 @@ cpsdVar.waveLow  = 0.05;
 cpsdVar.waveHigh = 0.2;
 
 
-%画图所需世界坐标信息
+%画图所需世界坐标信息，之前用的范围
+%     world.crossShoreRange = 200;
+%     world.longShoreRange = 90;
+    
+    
+    
+    %对于组别不同的取值范围，明确为：
+    
+    
+    % 后两次的数据范围
+    cpsdVar.Fs = 2;%采样频率，单位hz
+    picInfo.timeInterval = 1/cpsdVar.Fs; %单位s 
+    picInfo.pixel2Distance = 0.5; %单位米
+    
+    
     world.crossShoreRange = 200;
-    world.longShoreRange = 90;
-    
-    
-    
+    world.longShoreRange = 100;
+%     
+%     
+%     
     world.x = 0:picInfo.pixel2Distance:world.longShoreRange;
     world.y = 0:picInfo.pixel2Distance:world.crossShoreRange;
 

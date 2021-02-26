@@ -1,7 +1,7 @@
 % clc
 % close all;
 
-Fs = 6;
+Fs = 2;
 N = 500;
 n = 0:N-1;
 t = n/Fs;
@@ -34,10 +34,13 @@ t = n/Fs;
 
 %% 这一段是测试去直流分量，查看数据效果，分别用了三种去直流方法继续测试，并在频谱图和功率谱上画出
 
+   cr = 300; %choose row 即选定的行
+
+
    row = double(row_timestack);
-   x = row(360,:);
+   x = row(cr,:);
 
-
+   Fs = 2;
    x1 = clrDc(x,1);
    x2 = clrDc(x,2);
    x3 = clrDc(x,3);
@@ -52,7 +55,7 @@ t = n/Fs;
 %    plot(x2,'g');
 %    hold on;
 %    plot(x3,'b');
-   plot(afterFilt(360,:),'b');
+   plot(afterFilt(cr,:),'b');
    hold on;
    plot(x,'k');
    
@@ -69,7 +72,7 @@ t = n/Fs;
     mag3 = abs(Pxy3);
     
     
-    [Pxy4,F4] = cpsd(afterFilt(360,:),afterFilt(360,:),[],[],[],Fs);
+    [Pxy4,F4] = cpsd(afterFilt(cr,:),afterFilt(cr,:),[],[],[],Fs);
     mag4 = abs(Pxy4);
     figure(2);
     
@@ -166,9 +169,10 @@ plot(F,mag);
 
 
 %%
-%   tmp = imread("./selectPic/afterPer/双月湾第二组变换后/变换后图片5/uasDemo_1603582140167.jpg");
-%   tmp = insertShape(tmp,'Line',[200 1 200 431],'LineWidth',1,'Color','r');
-%   imshow(tmp);
+  tmp = imread("F:/workSpace/matlabWork/imgResult/orthImg/finalOrth_1603524600000.jpg");
+  tmp = insertShape(tmp,'Line',[20 1 20 401],'LineWidth',1,'Color','r');
+  tmp = insertShape(tmp,'Line',[120 1 120 401],'LineWidth',1,'Color','r');
+  imshow(tmp);
   
 %%
   fixedtime = seaDepth(:,500);%分辨率为0.2m设为200
@@ -267,7 +271,7 @@ plot(F,mag);
       idx=idx+1;
    end
    
-   %%%
+   %%
    
    
    

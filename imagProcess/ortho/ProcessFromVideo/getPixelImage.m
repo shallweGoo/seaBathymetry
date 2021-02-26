@@ -253,7 +253,10 @@ function getPixelImage(roi_path,extrinsicFullyInfo_path,unsolvedPic_path,savePat
 
             % Put in Format xyz for xyz2distUVd
             xyz=cat(2,pixInst(p).X(:),pixInst(p).Y(:),pixInst(p).Z(:));
-
+            %提出点用于数据对比
+            if(p == 1)
+                save('F:/workSpace/matlabWork/proPoints.mat','xyz');
+            end
             %Pull Correct Extrinsics out, Corresponding In time
 
             extrinsics=Extrinsics{k}(1,:);

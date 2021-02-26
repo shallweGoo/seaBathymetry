@@ -4,14 +4,18 @@ addpath('E:/Program Files (x86)/mexopencv-master/opencv_contrib');
 addpath('./coordination transformation')
 addpath(genpath('./ProcessFromVideo/'))
 %% gcp的真实世界坐标（以自己建的坐标系）和像素坐标
-gcp_llh =[[22.5948224,114.8764800,7.41];
-[22.5952560,114.8767744,7.53];
-[22.5956768,114.8767360,5.09];
-[22.5958368,114.8764544,5.14];
-[22.5960064,114.8761216,5.11]];
+gcp_llh =[
+[22.5948224,114.8764800,7.41-5.09];
+[22.5952560,114.8767744,7.53-5.09];
+[22.5956768,114.8767360,5.09-5.09];
+[22.5958368,114.8764544,5.14-5.09];
+[22.5960064,114.8761216,5.11-5.09];
 
-% o_llh = [22.5957696,114.8766464,5.23];
-o_llh = [22.5956768,114.8767360,5.09];
+];
+
+
+o_llh = [22.5952560,114.8767744,7.53-5.09];
+
 
 objectPoints = gcpllh2NED(o_llh,gcp_llh);
 objectPoints = objectPoints';
@@ -31,10 +35,12 @@ picNum = 500;
 %%
 src = imread(".\1.jpg");
 tmp = src;
-Rotate_ned2cs = Euler2Rotate(-148,0,0);
+Rotate_ned2cs = Euler2Rotate(-148.5,0,0); %之前是148,
 Rotate_ned2cs = Rotate_ned2cs';
 objectPointsInCs = Rotate_ned2cs*objectPoints';
-objectPointsInCs = objectPointsInCs';
+objectPointsInCs = objectPointsInCs'
+
+
 [Re_c, tvec] = gcpForCamExtrinsic(cameraMatrix,objectPointsInCs,imagePoints);
 
 

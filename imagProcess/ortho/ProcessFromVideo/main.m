@@ -13,14 +13,20 @@ fs = 2;
 % videoPath ： 视频的绝对路径
 % savePath ： 存放结果图片的绝对路径
 % fs ： 采样频率
-% videoRange ： 为一个1*2数组，videoRange(1)为截取视频的开始时间，videoRange(2)为视频结束时间
+% videoRange ： 为一个1*2数组，videoRange(1)为截取视频的开始时间，videoRange(2)为视频结束时间，单位为秒
+
+% step1.videoPath = 'E:/海浪原始数据/2020年10月惠州数据/_10.24_双月湾/第二组/DJI_0150.MOV';
+
+disp('----------step1 start--------------- ');
+% step1.videoPath = 'E:/海浪原始数据/2021.01.21双月湾/2021_01_22早/DJI_0189.MOV';
+% step1.videoPath = 'E:/海浪原始数据/2021.01.12双月湾/视频数据/第一组/DJI_0178.MOV';
 step1.videoPath = 'E:/海浪原始数据/2020年10月惠州数据/_10.24_双月湾/第二组/DJI_0150.MOV';
 step1.savePath = ds_image_savePath;
 step1.fs = fs;
-step1.videoRange = [10,370]; %5分钟的截取时长
+step1.videoRange = [100,400]; %5分钟的截取时长
 downSampleFromVideo(step1.videoPath,step1.savePath,step1.fs,step1.videoRange);
 
-
+disp('----------step1 finish--------------- ');
 
 %% step2 getGcpInfo_UV & getGcpInfo_World
 % 第二步，获取gcpInfo的像素坐标和世界坐标
@@ -30,11 +36,18 @@ downSampleFromVideo(step1.videoPath,step1.savePath,step1.fs,step1.videoRange);
 %   gcpSavePath ： 储存gcp
 %   fs ： 采样频率
 %   mode ： 模式1：获取gcp在函数内定义的信息。模式2：获取除了之前的信息之外，令加入了gcp模板
-step2.UV.imagePath = 'F:/workSpace/matlabWork/imgResult/downSample/upSample_1603524610010.tif';
+
+disp('----------step2 start--------------- ');
+
+
+ff_name = string(ls(ds_image_savePath));
+ff_name = ff_name(3);%为第一帧的图片名称
+ff_name = char(ff_name);
+step2.UV.imagePath = [ds_image_savePath ff_name];
 step2.UV.gcpSavePath = mat_savePath;
 step2.UV.fs = fs;       
 getGcpInfo_UV(step2.UV.imagePath,step2.UV.gcpSavePath,step2.UV.fs,1);
-
+clear ff_name;
 
 % 2.getGcpInfo_World函数原型：gcpInfo_world = getGcpInfo_World(gcp_llh,o_llh,euler_ned2new,savePath)
 % 输入参数：
@@ -42,18 +55,23 @@ getGcpInfo_UV(step2.UV.imagePath,step2.UV.gcpSavePath,step2.UV.fs,1);
 % o_llh ： local坐标系原点的经纬高，gps得出
 % euler_ned2new ： ned坐标系转local坐标系的欧拉角，一般只和偏航有关 1*3矩阵,对应yaw,pitch,roll
 % savePath ： 存放数组的绝对路径
-step2.world.gcp_llh = [ 
-                        [22.5948224,114.8764800,7.41];
-                        [22.5952560,114.8767744,7.53];
-                        [22.5956768,114.8767360,5.09];
-                        [22.5958368,114.8764544,5.14];
-                        [22.5960064,114.8761216,5.11]
-                       ];
-step2.world.o_llh = [22.5956768,114.8767360,5.09];
-step2.world.euler_ned2new = [-148,0,0];
+step2.world.gcp_llh = [
+        [22.5948224,114.8764800,7.41-5.09];
+        [22.5952560,114.8767744,7.53-5.09];
+        [22.5956768,114.8767360,5.09-5.09];
+        [22.5958368,114.8764544,5.14-5.09];
+        [22.5960064,114.8761216,5.11-5.09];
+        
+
+];
+step2.world.o_llh = [22.5956768,114.8767360,5.09-5.09];
+step2.world.euler_ned2new = [-148.5,0,0];
 step2.world.savePath = mat_savePath;
 
 getGcpInfo_World(step2.world.gcp_llh,step2.world.o_llh,step2.world.euler_ned2new,step2.world.savePath);
+
+disp('----------step2 finish--------------- ');
+
 
 %% step3 matchGcp
 % 第三步 获取第一帧图片的外参以及整合gcp数据（将UV数据和World数据结合）
@@ -64,7 +82,7 @@ getGcpInfo_World(step2.world.gcp_llh,step2.world.o_llh,step2.world.euler_ned2new
 % intrinsic_path：1*11的结构体，相机内参
 % savePath：gcp全部信息整合的结构体与第一帧图片相机外参存放的绝对路径
 
-
+disp('----------step3 start--------------- ');
 
 step3.gcpInfo_UV_path = [mat_savePath 'gcpInfo_firstFrame.mat'];
 step3.gcpInfo_world_path = [mat_savePath 'gcpInfo_world.mat'];
@@ -73,7 +91,7 @@ step3.savePath = mat_savePath;
 
 matchGcp(step3.gcpInfo_UV_path,step3.gcpInfo_world_path,step3.intrinsic_path,step3.savePath,1);
 
-
+disp('----------step3 finish--------------- ');
 
 %% step4 getScpInfo
 % 第四步,获取Scp的信息
@@ -84,13 +102,15 @@ matchGcp(step3.gcpInfo_UV_path,step3.gcpInfo_world_path,step3.intrinsic_path,ste
 % fs ：采样频率
 % brightFlag：颜色映射选项，可选为'bright'和'dark' 分别对应 白色为高像素值映射与黑色为高像素值映射
 
+
+disp('----------step4 start--------------- ');
 step4.gcp_path = [mat_savePath 'gcpFullyInfo.mat'];
 step4.savePath = mat_savePath;
 step4.fs = fs;
-step4.brightFlag = 'bright';
+step4.brightFlag = 'bright'; 
 getScpInfo(step4.gcp_path,step4.savePath,step4.fs,step4.brightFlag);
 
-
+disp('----------step4 finish--------------- ');
 
 %% step5 calcFollowedExtrinsic
 % 第五步：利用已知信息（scp或模板）来计算之后每张图片的外参
@@ -103,6 +123,8 @@ getScpInfo(step4.gcp_path,step4.savePath,step4.fs,step4.brightFlag);
 % savePath ： 全部的外参矩阵的以及相关信息的存放绝对路径，为输出路径
 % mode ：模式1为利用scp信息，模式2为利用模板信息
 
+
+disp('----------step5 start--------------- ');
 step5.scp_path =[mat_savePath 'scpInfo_firstFrame.mat'];
 step5.gcp_path = [mat_savePath 'gcpFullyInfo.mat'];
 step5.rotateInfo_path = [mat_savePath 'RotateInfo_firstFrame.mat'];
@@ -111,6 +133,8 @@ step5.savePath = mat_savePath;
 step5.mode = 1;
 
 calcFollowedExtrinsic(step5.scp_path,step5.gcp_path,step5.rotateInfo_path,step5.unsovledExtrinsic_pic_path,step5.savePath,step5.mode);
+
+disp('----------step5 finish--------------- ');
 
 %% step6 chooseRoi
 % 第六步，选择感兴趣的区域,主要是获取该区域的local_xyz信息
@@ -122,17 +146,19 @@ calcFollowedExtrinsic(step5.scp_path,step5.gcp_path,step5.rotateInfo_path,step5.
 % pixel_resolution ： 每个像素点相隔的距离
 % savePath ： 区域信息的储存路径
 
+disp('-----------step6 start--------------- ');
+
 step6.gcpInfo_path = [mat_savePath 'gcpFullyInfo.mat'];
 step6.rotateInfo_path = [mat_savePath 'RotateInfo_firstFrame.mat'];
-step6.roi_x = [-10,250];
-step6.roi_y = [-10,100];
+step6.roi_x = [0,200]; 
+step6.roi_y = [0,100];
 step6.pixel_resolution = 0.5;
 step6.savePath = mat_savePath;
 
 chooseRoi(step6.gcpInfo_path,step6.rotateInfo_path,step6.roi_x,step6.roi_y,step6.pixel_resolution,step6.savePath);
 
 
-
+disp('-----------step6 finish--------------- ');
 
 %% step7 getPixelImage
 % 第七步，正式提取像素点图片
@@ -152,6 +178,8 @@ chooseRoi(step6.gcpInfo_path,step6.rotateInfo_path,step6.roi_x,step6.roi_y,step6
 % x_rag:x_transect的范围，x的范围
 % y_dy,y_ox,y_rag 同上解释
 
+disp('-----------step7 start--------------- ');
+
 step7.roi_path = [mat_savePath 'GRID_roiInfo.mat'];
 step7.extrinsicFullyInfo_path = [mat_savePath 'extrinsicFullyInfo.mat'];
 step7.unsolvedPic_path = ds_image_savePath;
@@ -159,7 +187,7 @@ step7.savePath = mat_savePath;
 
 
 step7.inputStruct.roi_x = [0,200];
-step7.inputStruct.roi_y = [0,90];
+step7.inputStruct.roi_y = [0,100];
 step7.inputStruct.dx = 0.5;
 step7.inputStruct.dy = 0.5;
 
@@ -169,10 +197,11 @@ step7.inputStruct.x_rag = [0,200];
 
 step7.inputStruct.y_dy = 0.5;
 step7.inputStruct.y_ox = 0;
-step7.inputStruct.y_rag = [0,90];
+step7.inputStruct.y_rag = [0,100];
 
 getPixelImage(step7.roi_path,step7.extrinsicFullyInfo_path,step7.unsolvedPic_path,step7.savePath,step7.inputStruct);
 
+disp('-----------step7 finish--------------- ');
 
 
 %% step8 rotImg
@@ -182,14 +211,21 @@ getPixelImage(step7.roi_path,step7.extrinsicFullyInfo_path,step7.unsolvedPic_pat
 % pixelInst_path ： 像素信息的结构的绝对路径
 % savePath ： 储存信息
 
+disp('----------step8 start--------------- ');
+
 step8.pixelInst_path = [mat_savePath 'pixelImg.mat'];
 step8.savePath = 'F:/workSpace/matlabWork/imgResult/orthImg/';
 
 rotImg(step8.pixelInst_path,step8.savePath);
 
 
+disp('----------step8 finish--------------- ');
+disp('----------ALL STEP FINISH!!--------------- ');
 
 % 完成！
+
+
+
 
             
 

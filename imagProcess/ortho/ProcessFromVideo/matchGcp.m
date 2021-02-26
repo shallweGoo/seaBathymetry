@@ -40,8 +40,12 @@ function matchGcp(gcpInfo_UV_path,gcpInfo_world_path,intrinsic_path,savePath,mod
     
     gcpCoord = '现实坐标系：x轴垂直于岸，y轴平行于岸 ';
     
-    extrinsicsInitialGuess= [20 20 100 deg2rad(45) deg2rad(0) deg2rad(0)]; % [ x y z yaw pitch roll]
+%     extrinsicsInitialGuess= [20 20 100 deg2rad(45) deg2rad(0) deg2rad(0)]; % [ x y z azimuth tilt swing]
 
+    extrinsicsInitialGuess= [-153.4459  -56.7809  -100 deg2rad(-110) deg2rad(-110) deg2rad(0)];
+    
+%     extrinsicsInitialGuess = [-100 0 -100 deg2rad(45) deg2rad(90) deg2rad(0)];
+    
     %  要去求解的参数
     
     extrinsicsKnownsFlag= [0 0 0 0 0 0];  % [ x y z azimuth tilt swing]
@@ -85,7 +89,12 @@ function matchGcp(gcpInfo_UV_path,gcpInfo_world_path,intrinsic_path,savePath,mod
     
     %用一个非线性优化去求解外参矩阵
     [extrinsics,extrinsicsError]= extrinsicsSolver(extrinsicsInitialGuess,extrinsicsKnownsFlag,intrinsics,UVd,xyz);
-    extrinsicsInitialGuess= [20 20 100 deg2rad(45) deg2rad(0) deg2rad(0)]; % [ x y z azimuth tilt swing]
+%     extrinsicsInitialGuess= [20 20 100 deg2rad(45) deg2rad(0) deg2rad(0)]; % [ x y z azimuth tilt swing]
+
+    extrinsicsInitialGuess= [-153.4459  -56.7809  -100 deg2rad(-110) deg2rad(-110) deg2rad(0)];
+%     extrinsicsInitialGuess= [-100  0  -100 deg2rad(45) deg2rad(90) deg2rad(0)];
+    
+    
     % azimuth ：以世界坐标系的z轴为旋转轴，顺时针旋转提供正向角度。
     % tilt ：俯仰角，以摄像头水平方向为+90°，向上减少到0°，向下增加到180°。
     % swing ：滚动角，相机水平为0°，逆时针旋转提供正向的角度。

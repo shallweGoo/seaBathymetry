@@ -50,7 +50,7 @@ function scpInfo = getScpInfo(gcp_path,savePath,fs,brightFlag)
             title('请按下任意键，进入选择模式');
             pause
 
-            title('左键选择GCP,右键删除GCP');
+            title('左键选择SCP,右键删除SCP');
             [x,y,button] = ginput(1);
 
 
