@@ -139,30 +139,12 @@ plotBathy(world,seaDepth);
 
 %%
 
-tmp = imread("F:/workSpace/matlabWork/imgResult/orthImg/finalOrth_1603524600000.jpg");
-tmp = insertShape(tmp,'Line',[20 1 20 401],'LineWidth',1,'Color','r');
-tmp = insertShape(tmp,'Line',[120 1 120 401],'LineWidth',1,'Color','r');
-imshow(tmp);
+
 
 
 
 %% 
 
-figure(3);
-cmp_col = 120;
-
-cs_dis = length(seaDepth);
-r = size(groundTruth_mat,1);
-c = size(groundTruth_mat,2);
-plot((1:cs_dis)*0.5,seaDepth(:,cmp_col),'r');
-hold on;
-plot((1:cs_dis)*0.5,groundTruth_mat(:,cmp_col),'b');
-legend('反演数据',"真实数据");
-xlim([90, 180]);
-ylim([0, 5]);
-xlabel('跨岸距离(m)');
-ylabel('海水深度(m)');
-title('沿岸距离(60m)');
 
 
 
@@ -252,4 +234,64 @@ clear depth;
 
 gridPlot(om_grid);
         
+
+
+
+%% 
+figure;
+s = load('C:\Users\49425\Desktop\S.mat');
+subplot(1,3,1);
+gridPlot(s.om_grid);
+title("无人艇测得数据",'fontsize',30,'color','b');
+v = load('C:\Users\49425\Desktop\V.mat');
+subplot(1,3,2);
+gridPlot(v.om_grid);
+title("算法反演数据",'fontsize',30,'color','b');
+subplot(1,3,3);
+err_grid= abs(s.om_grid-v.om_grid);
+gridPlot(err_grid);
+title('误差值','fontsize',30,'color','r');
+
+%
+figure;
+tmp = imread("F:/workSpace/matlabWork/imgResult/orthImg/finalOrth_1603524600000.jpg");
+tmp = insertShape(tmp,'Line',[20 1 20 401],'LineWidth',1,'Color','r');
+tmp = insertShape(tmp,'Line',[120 1 120 401],'LineWidth',1,'Color','r');
+
+subplot(1,3,1);
+imshow(tmp);
+
+
+cs_dis = length(seaDepth);
+r = size(groundTruth_mat,1);
+c = size(groundTruth_mat,2);
+
+
+
+cmp_col = 20;
+subplot(1,3,2);
+plot((1:cs_dis)*0.5,seaDepth(:,cmp_col),'r');
+hold on;
+plot((1:cs_dis)*0.5,groundTruth_mat(:,cmp_col),'b');
+legend('反演数据',"真实数据");
+xlim([90, 180]);
+ylim([0, 5]);
+xlabel('跨岸距离(m)');
+ylabel('海水深度(m)');
+title('沿岸距离(10m)','fontsize',30,'color','b');
+
+
+subplot(1,3,3);
+cmp_col = 120;
+
+plot((1:cs_dis)*0.5,seaDepth(:,cmp_col),'r');
+hold on;
+plot((1:cs_dis)*0.5,groundTruth_mat(:,cmp_col),'b');
+legend('反演数据',"真实数据");
+xlim([90, 180]);
+ylim([0, 5]);
+xlabel('跨岸距离(m)');
+ylabel('海水深度(m)');
+title('沿岸距离(60m)','fontsize',30,'color','b');
+
 

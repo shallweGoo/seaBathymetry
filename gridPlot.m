@@ -20,5 +20,5 @@ function gridPlot(grid_pic)
     set(gca,'ydir','reverse');
     % set(gca,'XTick',1:col,'YTick',1:row);  % 设置坐标
     % axis image xy;  % 沿每个坐标轴使用相同的数据单位，保持一致
-    title('海底地形图V');
+%     title('海底地形图V');
 end

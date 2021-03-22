@@ -124,8 +124,8 @@ function [f,c] = corForFandC(picInfo,currentCol,cpsdVar)
 %         plot(timeLag,tmp_y,'b');
 %         figure(1);
 %         plot(maxCorVal,'b');
-%         figure(2);
-%         plot(cor_cof,'r');
+        figure(2);
+        plot(cor_cof,'r');
         
         % 取平均值操作
         if(isnan(c(midPoint)))
