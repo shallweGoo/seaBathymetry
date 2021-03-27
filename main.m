@@ -118,7 +118,7 @@ if mode == 1
     for i = 1:picInfo.col
     %     t1 = cputime;
         [point.f(:,i),point.speed(:,i)] = corForFandC(picInfo,i,cpsdVar);
-        seaDepth(:,i) = fixedTimeForCalDepth(point.speed(:,i),point.f(:,i));
+        seaDepth(:,i) = calDepth(point.speed(:,i),point.f(:,i));
         disp(['progress:' num2str(i/picInfo.col*100) '% completed']);
     %     run_time = cputime-t1;
     end
@@ -136,7 +136,7 @@ elseif mode == 2
         point.speed(:,i) = idx*picInfo.pixel2Distance/fixed_time;
 %         point.f(:,i) = fixedTimeCorForF(idx,i,picInfo,cpsdVar);
         point.f(:,i) = fixedTimeCorForF_PS(i,picInfo,cpsdVar);
-        seaDepth(:,i) = fixedTimeForCalDepth(point.speed(:,i),point.f(:,i));
+        seaDepth(:,i) = calDepth(point.speed(:,i),point.f(:,i));
         disp(['progress:' num2str(i/picInfo.col*100) '% completed']);
     end
     % 加平滑处理的过程
