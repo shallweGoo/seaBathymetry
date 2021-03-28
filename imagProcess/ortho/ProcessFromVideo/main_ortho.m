@@ -25,7 +25,7 @@ step1.videoPath = 'E:/海浪原始数据/2020年10月惠州数据/_10.24_双月湾/第二组/DJI_0
 step1.savePath = ds_image_savePath;
 step1.fs = fs;
 step1.videoRange = [100,400]; %5分钟的截取时长
-downSampleFromVideo(step1.videoPath,step1.savePath,step1.fs,step1.videoRange);
+downSampleFromVideo(step1);
 
 disp('----------step1 finish--------------- ');
 
@@ -47,7 +47,8 @@ ff_name = char(ff_name);
 step2.UV.imagePath = [ds_image_savePath ff_name];
 step2.UV.gcpSavePath = mat_savePath;
 step2.UV.fs = fs;       
-getGcpInfo_UV(step2.UV.imagePath,step2.UV.gcpSavePath,step2.UV.fs,1);
+getGcpInfo_UV(step2,1);
+
 clear ff_name;
 
 % 2.getGcpInfo_World函数原型：gcpInfo_world = getGcpInfo_World(gcp_llh,o_llh,euler_ned2new,savePath)

@@ -1,4 +1,4 @@
-function downSampleFromVideo(videoPath,savePath,fs,videoRange)
+function downSampleFromVideo(step)
 %DOWNSAMPLEFORVIDEO 该函数用于对一个视频进行图像降采样,事先最好先知道Video的信息
 
 
@@ -19,12 +19,29 @@ function downSampleFromVideo(videoPath,savePath,fs,videoRange)
 %% 以下为CIRN修改
 
     %如果不设置采样频率和采样帧时，默认为2Hz和全部帧转换
-    if nargin < 3
+    
+    videoPath = step.videoPath;
+    savePath = step.savePath;
+    
+    if(isfield(step,'fs')) 
+        fs = step.fs;
+    else
         fs = 2;
-        videoRange = []; 
-    elseif nargin < 4 
+    end
+    
+    if(isfield(step,'videoRange')) 
+        videoRange = step.videoRange;
+    else
         videoRange = [];
-    end 
+    end
+    
+    
+%     if nargin < 3
+%         fs = 2;
+%         videoRange = []; 
+%     elseif nargin < 4 
+%         videoRange = [];
+%     end 
         
     v =VideoReader(videoPath);
 
