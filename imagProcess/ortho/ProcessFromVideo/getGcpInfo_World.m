@@ -4,8 +4,7 @@ function gcpInfo_world = getGcpInfo_World(gcp_llh,o_llh,euler_ned2new,savePath)
 % 借助了gps(经纬高llh) -> 东北天(enu) -> 北东地(ned) -> 自建坐标系(new)这样的一个流程,原点需要自选
 %
     
-    addpath('F:/workSpace/matlabWork/seaBathymetry/imagProcess/ortho/coordination transformation');
-    addpath('F:/workSpace/matlabWork/seaBathymetry/imagProcess/ortho');
+    addpath('F:/workSpace/matlabWork/seaBathymetry/imagProcess/ortho/ProcessFromVideo/CoreFunctions/');
 
     if nargin < 4 
         savePath = './'; 
