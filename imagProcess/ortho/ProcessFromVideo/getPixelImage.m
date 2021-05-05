@@ -1,4 +1,4 @@
-function getPixelImage(roi_path,extrinsicFullyInfo_path,unsolvedPic_path,savePath,inputStruct)
+function getPixelImage(step)
 %GETPIXELIMAGE 该函数获取经过chooseRoi函数所选择的区域、像素分辨率等得出的结果（mat文件）进行像素图片提取
 % 使用前记得加上addpath(genpath('CoreFunctions')),可以在主函数中添加
 % inputStruct为输入的结构体，应当包含roi_x,roi_y,dx,dy,x_dx,x_oy,x_rag,y_dy,y_ox,y_rag,localFlag
@@ -10,7 +10,13 @@ function getPixelImage(roi_path,extrinsicFullyInfo_path,unsolvedPic_path,savePat
 % x_rag:x_transect的范围，x的范围
 % y_dy,y_ox,y_rag 同上解释
 
+    roi_path = step.roi_path;
+    extrinsicFullyInfo_path = step.extrinsicFullyInfo_path;
+    unsolvedPic_path = step.unsolvedPic_path;
+    savePath = step.savePath;
+    inputStruct = step.inputStruct;
     
+
 
 
 

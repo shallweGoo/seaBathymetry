@@ -43,7 +43,6 @@ disp('----------step1 finish--------------- ');
 
 disp('----------step2 start--------------- ');
 
-
 step2.world.gcp_llh = [
         [22.5948224,114.8764800,7.41-5.09];
         [22.5952560,114.8767744,7.53-5.09];
@@ -52,10 +51,9 @@ step2.world.gcp_llh = [
         [22.5960064,114.8761216,5.11-5.09];
 ];
 step2.world.o_llh = [22.5956768,114.8767360,5.09-5.09];
-% step2.world.euler_ned2new = [-148.5,0,0]; 不转为现实坐标系了
 step2.world.savePath = mat_savePath;
 
-step2.world.uav_llh = [22.596208333333333,114.87723055555556,101.84];%无人机机体的经纬高
+step2.world.uav_llh = [22.596208333333333,114.87723055555556,101.84];%无人机机体的经纬高,用rtk应该会准很多
 
 getGcpInfo_World(step2);
 
@@ -215,7 +213,7 @@ step7.inputStruct.y_dy = 0.5;
 step7.inputStruct.y_ox = 0;
 step7.inputStruct.y_rag = [0,100];
 
-getPixelImage(step7.roi_path,step7.extrinsicFullyInfo_path,step7.unsolvedPic_path,step7.savePath,step7.inputStruct);
+getPixelImage(step7);
 
 disp('-----------step7 finish--------------- ');
 

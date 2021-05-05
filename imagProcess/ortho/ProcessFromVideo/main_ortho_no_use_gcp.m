@@ -1,11 +1,16 @@
 
-% 该函数为从一个视频开始，直到一组正射图像的整个流程,为不使用gcp版本
+% 该函数为从一个视频开始，直到一组正射图像的整个流程
 % 对于路径建议都使用绝对路径！
 addpath(genpath('F:/workSpace/matlabWork/seaBathymetry/imagProcess/ortho/ProcessFromVideo/CoreFunctions/'));
 addpath('F:/workSpace/matlabWork/seaBathymetry/imagProcess/ortho/ProcessFromVideo/CoreFunctions/');
 mat_savePath = 'F:/workSpace/matlabWork/imgResult/resMat/';
 ds_image_savePath =  'F:/workSpace/matlabWork/imgResult/downSample/';
 fs = 2;
+
+%%第一帧的图片名称
+ff_name = string(ls(ds_image_savePath));
+ff_name = ff_name(3);%为第一帧的图片名称
+ff_name = char(ff_name);
 
 
 
@@ -43,7 +48,6 @@ disp('----------step1 finish--------------- ');
 
 disp('----------step2 start--------------- ');
 
-
 step2.world.gcp_llh = [
         [22.5948224,114.8764800,7.41-5.09];
         [22.5952560,114.8767744,7.53-5.09];
@@ -52,10 +56,9 @@ step2.world.gcp_llh = [
         [22.5960064,114.8761216,5.11-5.09];
 ];
 step2.world.o_llh = [22.5956768,114.8767360,5.09-5.09];
-% step2.world.euler_ned2new = [-148.5,0,0]; 不转为现实坐标系了
 step2.world.savePath = mat_savePath;
 
-step2.world.uav_llh = [22.596208333333333,114.87723055555556,101.84];%无人机机体的经纬高
+step2.world.uav_llh = [22.596208333333333,114.87723055555556,101.84];%无人机机体的经纬高,用rtk应该会准很多
 
 getGcpInfo_World(step2);
 
@@ -68,16 +71,12 @@ getGcpInfo_World(step2);
 
 %   fs ： 采样频率
 %   mode ： 模式1：获取gcp在函数内定义的信息。模式2：获取除了之前的信息之外，令加入了gcp模板
-% ff_name = string(ls(ds_image_savePath));
-% ff_name = ff_name(3);%为第一帧的图片名称
-% ff_name = char(ff_name);
-% step2.UV.imagePath = [ds_image_savePath ff_name];
-% step2.UV.gcpSavePath = mat_savePath;
-% step2.UV.fs = fs;
-% getGcpInfo_UV(step2,1);
-% 
-% clear ff_name;
-% 
+
+step2.UV.imagePath = [ds_image_savePath ff_name];
+step2.UV.gcpSavePath = mat_savePath;
+step2.UV.fs = fs;
+getGcpInfo_UV(step2,1);
+
 disp('----------step2 finish--------------- ');
 
 
@@ -93,7 +92,7 @@ disp('----------step2 finish--------------- ');
 
 disp('----------step3 start--------------- ');
 
-% step3.gcpInfo_UV_path = [mat_savePath 'gcpInfo_firstFrame.mat'];
+step3.gcpInfo_UV_path = [mat_savePath 'gcpInfo_firstFrame.mat'];
 step3.gcpInfo_world_path = [mat_savePath 'gcpInfo_world.mat'];
 step3.intrinsic_path = './neededData/intrinsicMat.mat';
 step3.savePath = mat_savePath;
@@ -101,9 +100,58 @@ step3.savePath = mat_savePath;
 
 step3.no_use_gcp.ned2b = [-35.6,0,-122.80];
 
-matchGcp(step3);
+matchGcp(step3,2);
 
 disp('----------step3 finish--------------- ');
+
+%% step4 getScpInfo
+% 第四步,获取Scp的信息
+% 函数原型为 getScpInfo(gcp_path,savePath,fs,brightFlag)
+% 输入参数：
+% gcp_path ： 由step3所得到的gcp的全部信息的mat格式数据的绝对路径
+% savePath ： 最终得到的scp信息的存放路径
+% fs ：采样频率
+% brightFlag：颜色映射选项，可选为'bright'和'dark' 分别对应 白色为高像素值映射与黑色为高像素值映射
+
+
+% disp('----------step4 start--------------- ');
+% step4.gcp_path = [mat_savePath 'gcpFullyInfo.mat'];
+% step4.savePath = mat_savePath;
+% step4.fs = fs;
+% step4.brightFlag = 'bright'; 
+% getScpInfo(step4);
+% 
+% disp('----------step4 finish--------------- ');
+
+%% step5 calcFollowedExtrinsic
+% 第五步：利用已知信息（scp或模板）来计算之后每张图片的外参
+% 函数原型：calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrinsic_pic_path,savePath,mode)
+% 输入参数：
+% scp_path ： scp信息的mat格式数据绝对路径
+% gcp_path ： gcp信息的mat格式数据绝对路径
+% rotateInfo_path ： 第一帧的旋转信息的mat格式数据绝对路径
+% unsovledExtrinsic_pic_path ： 待计算外参图片的存放绝对路径
+% savePath ： 全部的外参矩阵的以及相关信息的存放绝对路径，为输出路径
+% mode ：模式1为利用scp信息，模式2为利用模板信息
+
+
+
+disp('----------step5 start--------------- ');
+% step5.scp_path =[mat_savePath 'scpInfo_firstFrame.mat'];
+step5.gcp_path = [mat_savePath 'gcpFullyInfo.mat'];
+step5.rotateInfo_path = [mat_savePath 'RotateInfo_firstFrame.mat']; %这一个是matchGcp得到的第一帧的外参
+step5.unsovledExtrinsic_pic_path = ds_image_savePath;
+step5.savePath = mat_savePath;
+step5.fs = fs;
+
+% mode = 1 为非线性拟合计算外参的方式
+% mode = 2 为固定外参的方式
+step5.mode = 2;
+step5.ff_name = ff_name;
+
+calcFollowedExtrinsic(step5);
+
+disp('----------step5 finish--------------- ');
 
 %% step6 chooseRoi
 % 第六步，选择感兴趣的区域,主要是获取该区域的local_xyz信息
@@ -122,6 +170,7 @@ step6.rotateInfo_path = [mat_savePath 'RotateInfo_firstFrame.mat'];
 step6.roi_x = [0,200]; 
 step6.roi_y = [0,100];
 %将NED->Local坐标系的参数放在这一步来实现
+
 step6.local_angle = -148.5;%GEO(NED)->Local(world)的偏航角，右手定则定方向
 step6.local_origin = [0,0];%NED和world的原点偏置，一般都是0
 step6.pixel_resolution = 0.5;
@@ -172,7 +221,10 @@ step7.inputStruct.y_dy = 0.5;
 step7.inputStruct.y_ox = 0;
 step7.inputStruct.y_rag = [0,100];
 
-getPixelImage(step7.roi_path,step7.extrinsicFullyInfo_path,step7.unsolvedPic_path,step7.savePath,step7.inputStruct);
+%第一帧的图像名
+
+
+getPixelImage(step7);
 
 disp('-----------step7 finish--------------- ');
 
@@ -196,3 +248,7 @@ disp('----------step8 finish--------------- ');
 disp('----------ALL STEP FINISH!!--------------- ');
 
 % 完成！
+
+
+
+

@@ -1,31 +1,28 @@
 function  calcFollowedExtrinsic(step5)
 % calcFollowedExtrinsic 用来稳定接下来的图像,用来计算每帧的外参，这个步骤可以用两种方法
 % mode = 1，利用scp来计算外参
-% mode = 2，利用模板来匹配gcp，进而计算外参
-
+% mode = 3，利用模板来匹配gcp，进而计算外参
+% mode = 2, 固定外参
 
     %scpInfo为scp信息结构体，输入应该为结构体
     %ieInfo应该为extrinsics和intrinsic和initialCam的结构体
     %unsovledExtrinsic_pic_path为待计算外参帧图片的路径
     %savePath为存储路径
-    
-    
-    scp_path = step5.scp_path;
+
     gcp_path = step5.gcp_path;
     rotateInfo_path = step5.rotateInfo_path;
     unsovledExtrinsic_pic_path = step5.unsovledExtrinsic_pic_path;
     savePath = step5.savePath;
 
-    
-    if nargin<6
+    %如果没有使用模式的话，那么默认使用mode = 1
+    if ~isfield(step5,'mode')
         mode = 1;
     else
         mode = step5.mode;
     end
     
-    tmp1 = load(scp_path);
-    scp = tmp1.scp;
     
+    % 各种数据进行处理
     tmp2 = load(gcp_path);
     gcp = tmp2.gcp;
     
@@ -34,12 +31,58 @@ function  calcFollowedExtrinsic(step5)
     intrinsics = tmp3.intrinsics;
     initialCamSolutionMeta = tmp3.initialCamSolutionMeta;
     
-    
-    clear tmp1;
     clear tmp2;
     clear tmp3;
+    %设置存放文件名
+    saveName = 'extrinsicFullyInfo';
     
+    %图片信息登录
+    if mode == 1
+        %记录scp信息
+        scp_path = step5.scp_path;
+        tmp1 = load(scp_path);
+        scp = tmp1.scp;
+        clear tmp1;
+        %第一帧图像信息记录
+        imagePath = char(scp(1).imagePath);
+        ind =  find(imagePath == '/');
+        firstFrame= imagePath((ind(end)+1):end); %第一帧图像路径
+    else
+        firstFrame = step5.ff_name;
+    end
     
+    %% 设置时间信息和图片数量信息
+
+    %  每帧图像的存放路径，文件夹中必须只含有图片，并且命名格式若为数字应该为000001，000002这样的，建议使用绝对时间。
+    %  因为之后会使用string(ls(3:end))这种形式去读，所以对命名格式有要求
+    imageDirectory= unsovledExtrinsic_pic_path;
+    %  Enter the dt in seconds of the collect. If not known, leave as {}. Under
+    %  t, images will just be numbered 1,2,3,4.
+    %  方便记录，如果不知道留成空，之后图片默认会被编号为1，2，3，4
+    dts= 1/step5.fs; %Seconds 
+    
+    %  Enter the time of the initial image in MATLAB Datenum format; if unknown
+    %  leave empty {}, to will be set to 0.
+    
+    to=datenum(2020,10,24,7,30,0); % 看注释不想改了，日期信息,不知道的话设置为空{}
+
+    % 所有的图片列表
+    L=string(ls(imageDirectory));
+    % 找到所使用第一帧的图片位置
+    chk=cellfun(@isempty,strfind(L,firstFrame));
+    ffInd=find(chk==0);
+
+    % 带矫正的图片索引
+    ind=ffInd:length(chk);
+
+    % Assign time vector, if dts is left empty, vector will just be image
+    % number
+    if isempty(dts)==0
+        t=(dts./24./3600).*((1:length(ind))-1)+ to; %创建时间
+    else
+        t=(1:length(ind))-1;
+    end
+
     if mode == 1  %模式1采用CRIN的方法进行计算
        %% Section 2: User Input:  Initial Frame information
 
@@ -47,19 +90,10 @@ function  calcFollowedExtrinsic(step5)
         %  the same image you did the initial solution for in
         %  C_singleExtrinsicsSolution (initialCamSolutionMeta.impath). It should be
         %  in the same directory as your other colleciton images imagesDirectory.
-
-        imagePath = char(scp(1).imagePath);
-        ind =  find(imagePath == '/');
-        firstFrame= imagePath((ind(end)+1):end); %第一帧图像路径
-        clear ind;
-        clear imagePath;
-
-        
-        
-        saveName = 'extrinsicFullyInfo';
-       
         % 第一列为scp的编号，第二列为scp在真实世界坐标系下的z估计值，坐标系应当和计算外参所使用的坐标系相同
         % initailCamSolutionMeta.worldCoordSys
+
+
         scpz=[ 1  -2; % scp.num   z value
             2  -2;
             3  0;
@@ -70,30 +104,6 @@ function  calcFollowedExtrinsic(step5)
         % (initailCamSolutionMeta.worldCoordSys)
 
         scpZcoord= initialCamSolutionMeta.worldCoordSys;
-
-
-        
-
-
-        %% Section 3: User Input:  Collection Imagery
-
-        %  每帧图像的存放路径，文件夹中必须只含有图片，并且命名格式若为数字应该为000001，000002这样的，建议使用绝对时间。
-        %  因为之后会使用string(ls(3:end))这种形式去读，所以对命名格式有要求
-        imageDirectory= unsovledExtrinsic_pic_path;
-
-
-        %  Enter the dt in seconds of the collect. If not known, leave as {}. Under
-        %  t, images will just be numbered 1,2,3,4.
-        %  方便记录，如果不知道留成空，之后图片默认会被编号为1，2，3，4
-        dts= 1/scp(1).Fs; %Seconds 
-
-
-        %  Enter the time of the initial image in MATLAB Datenum format; if unknown
-        %  leave empty {}, to will be set to 0.
-        to=datenum(2020,10,24,7,30,0); % 看注释不想改了，日期信息
-
-
-
 
 
        %% Section 4: Load IOEO and SCP Info
@@ -109,35 +119,6 @@ function  calcFollowedExtrinsic(step5)
             scpZ(k)=scp(k).z;
             scpUVd(:,k)=[scp(k).UVdo'];
         end
-
-
-
-
-
-        %% Section 5: Find List of Images and Assign TIme
-
-
-        % 所有的图片列表
-        L=string(ls(imageDirectory));
-
-        % 找到所使用第一帧的图片位置
-        chk=cellfun(@isempty,strfind(L,firstFrame));
-        ffInd=find(chk==0);
-
-        % 带矫正的图片索引
-        ind=ffInd:length(chk);
-
-        % Assign time vector, if dts is left empty, vector will just be image
-        % number
-        if isempty(dts)==0
-            t=(dts./24./3600).*([1:length(ind)]-1)+ to; %创建时间
-        else if isempty(dts)==1
-                t=(1:length(ind))-1;
-            end
-        end
-
-
-
 
 
        %% Section 6: Initialize Extrinsic Values and Figures for Loop
@@ -178,7 +159,6 @@ function  calcFollowedExtrinsic(step5)
         [xyzo] = distUV2XYZ(intrinsics,extrinsics,scpUVd,'z',scpZ);
 
 
-
         % Initiate and rename initial image, Extrinsics, and SCPUVds for loop
 
         extrinsics_n=extrinsics;
@@ -192,16 +172,11 @@ function  calcFollowedExtrinsic(step5)
         imCount=1;
         len = length(ind)+2;
         for k=ind(2:end)
-
             % Assign last Known Extrinsics and SCP UVd coords
             extrinsics_o=extrinsics_n;%利用上一帧的信息，进行校正
             scpUVdo=scpUVdn; %利用上一帧的scp信息进行校正
-
-
             %  Load the New Image
             In=imread(strcat(imageDirectory, L(k,:)));
-
-
             % Find the new UVd coordinate for each SCPs
             for j=1:length(scp)
                
@@ -229,7 +204,6 @@ function  calcFollowedExtrinsic(step5)
             imCount=imCount+1;
             extrinsicsVariable(imCount,:)=extrinsics_n; %把外参存在extrinsicsVariable中
             extrinsicsUncert(imCount,:)=extrinsicsError;
-
 
 
             % Plot new Image and new UV coordinates, found by threshold and reprojected
@@ -269,7 +243,7 @@ function  calcFollowedExtrinsic(step5)
         % XCoordinate
         subplot(6,1,1)
         plot(t,extrinsicsVariable(:,1)-extrinsicsVariable(1,1))
-        ylabel('/Delta x')
+        ylabel('/delta x')
 %         title('Change in Extrinsics over Collection')
         title('外参变化曲线')
         
@@ -277,27 +251,27 @@ function  calcFollowedExtrinsic(step5)
         % YCoordinate
         subplot(6,1,2)
         plot(t,extrinsicsVariable(:,2)-extrinsicsVariable(1,2))
-        ylabel('/Delta y')
+        ylabel('/delta y')
 
         % ZCoordinate
         subplot(6,1,3)
         plot(t,extrinsicsVariable(:,3)-extrinsicsVariable(1,3))
-        ylabel('/Delta z')
+        ylabel('/delta z')
 
         % Azimuth
         subplot(6,1,4)
         plot(t,rad2deg(extrinsicsVariable(:,4)-extrinsicsVariable(1,4)))
-        ylabel('/Delta roll [^o]')
+        ylabel('/delta roll [^o]')
 
         % Tilt
         subplot(6,1,5)
         plot(t,rad2deg(extrinsicsVariable(:,5)-extrinsicsVariable(1,5)))
-        ylabel('/Delta pitch[^o]')
+        ylabel('/delta pitch[^o]')
 
         % Swing
         subplot(6,1,6)
         plot(t,rad2deg(extrinsicsVariable(:,6)-extrinsicsVariable(1,6)))
-        ylabel('/Delta yaw [^o]')
+        ylabel('/delta yaw [^o]')
 
 
         % Set grid and datetick if time is provided
@@ -336,7 +310,6 @@ function  calcFollowedExtrinsic(step5)
         %  Save File
         save([savePath saveName ],'extrinsics','variableCamSolutionMeta','imageNames','t','intrinsics');
 
-
         %  Display
         disp(' ')
         disp(['Extrinsics for ' num2str(length(L)) ' frames calculated.'])
@@ -347,9 +320,14 @@ function  calcFollowedExtrinsic(step5)
         disp(['roll Standard Dev: ' num2str(rad2deg(variableCamSolutionMeta.solutionSTD(4))) ' deg'])
         disp(['pitch Standard Dev: ' num2str(rad2deg(variableCamSolutionMeta.solutionSTD(5))) ' deg'])
         disp(['yaw Standard Dev: ' num2str(rad2deg(variableCamSolutionMeta.solutionSTD(6))) ' deg'])
+    
+    
+    
+    %% 固定外参计算方式
+    elseif mode == 2
+        %直接存外参就完事了
+        save([savePath saveName ],'extrinsics','t','intrinsics');
     end
-    
-    
 
 end
 

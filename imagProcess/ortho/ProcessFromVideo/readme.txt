@@ -16,3 +16,11 @@
 
 8、rotImg 用于旋转像素图 量产最终的结果图
 
+
+
+
+
+
+
+不使用控制点的方案，在matchGcp和calcFollowedExtrinsic这两个函数里面需要修改，
+在matchGcp中原本是用gcp的UV坐标和实际坐标XYZ来进行非线性拟合从而进行计算外参中的roll,yaw,pitch的，此时用了相机的姿态角，那么就
