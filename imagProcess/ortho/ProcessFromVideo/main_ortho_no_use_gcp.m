@@ -31,7 +31,7 @@ disp('----------step1 start--------------- ');
 step1.videoPath = 'E:/海浪原始数据/2020年10月惠州数据/_10.24_双月湾/第二组/DJI_0150.MOV';
 step1.savePath = ds_image_savePath;
 step1.fs = fs;
-step1.videoRange = [100,400]; %5分钟的截取时长
+step1.videoRange = [0,300]; %5分钟的截取时长
 downSampleFromVideo(step1);
 
 disp('----------step1 finish--------------- ');
@@ -148,6 +148,9 @@ step5.fs = fs;
 % mode = 2 为固定外参的方式
 step5.mode = 2;
 step5.ff_name = ff_name;
+step5.extrinsic_info.o_llh = step2.world.o_llh;
+step5.extrinsic_info.videoRange = step1.videoRange;
+step5.extrinsic_info.file_name = 'C:\Users\49425\Desktop\log\飞行日记测试.txt';
 
 calcFollowedExtrinsic(step5);
 
@@ -207,7 +210,6 @@ step7.extrinsicFullyInfo_path = [mat_savePath 'extrinsicFullyInfo.mat'];
 step7.unsolvedPic_path = ds_image_savePath;
 step7.savePath = mat_savePath;
 
-
 step7.inputStruct.roi_x = [0,200];
 step7.inputStruct.roi_y = [0,100];
 step7.inputStruct.dx = 0.5;
@@ -223,11 +225,9 @@ step7.inputStruct.y_rag = [0,100];
 
 %第一帧的图像名
 
-
 getPixelImage(step7);
 
-disp('-----------step7 finish--------------- ');
-
+disp('-----------step7 finish---------------');
 
 %% step8 rotImg
 % 第八步，旋转图像调整海浪从下往上传播
@@ -248,7 +248,6 @@ disp('----------step8 finish--------------- ');
 disp('----------ALL STEP FINISH!!--------------- ');
 
 % 完成！
-
 
 
 

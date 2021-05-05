@@ -140,7 +140,7 @@ function  calcFollowedExtrinsic(step5)
 
 
         % 输出化结构体
-        extrinsicsVariable=nan(length(ind),length(extrinsics));
+        extrinsicsVariable = nan(length(ind),length(extrinsics));
         extrinsicsVariable(1,:) = extrinsics; % First Value is first frame extrinsics.
         extrinsicsUncert(1,:)=initialCamSolutionMeta.extrinsicsUncert;
 
@@ -258,17 +258,17 @@ function  calcFollowedExtrinsic(step5)
         plot(t,extrinsicsVariable(:,3)-extrinsicsVariable(1,3))
         ylabel('/delta z')
 
-        % Azimuth
+        % roll
         subplot(6,1,4)
         plot(t,rad2deg(extrinsicsVariable(:,4)-extrinsicsVariable(1,4)))
         ylabel('/delta roll [^o]')
 
-        % Tilt
+        % pitch
         subplot(6,1,5)
         plot(t,rad2deg(extrinsicsVariable(:,5)-extrinsicsVariable(1,5)))
         ylabel('/delta pitch[^o]')
 
-        % Swing
+        % yaw
         subplot(6,1,6)
         plot(t,rad2deg(extrinsicsVariable(:,6)-extrinsicsVariable(1,6)))
         ylabel('/delta yaw [^o]')
@@ -326,8 +326,38 @@ function  calcFollowedExtrinsic(step5)
     %% 固定外参计算方式
     elseif mode == 2
         %直接存外参就完事了
-        save([savePath saveName ],'extrinsics','t','intrinsics');
-    end
+        %日志为0.1s间隔的，如果一开始的视频是从0s开始的，fs为2hz，说明间隔是5行取1行记录
+        XYZ = load_txt_for_extrinsic(step5.extrinsic_info.o_llh,step5.extrinsic_info.file_name);
+        
+        begin_time = step5.extrinsic_info.videoRange(1);
+        end_time = step5.extrinsic_info.videoRange(2);
+        
+        %第一帧图片所在的数据行
+        begin_row = begin_time*10+1; 
+        
+        %最后一帧图片所在的数据行
+        end_row = end_time*10; 
+        
+        %对应图片相机所在的NED坐标，也是外参的前3位
+        useful_row = begin_row:5:end_row;
+        
+        
+        
+        %循环存外参
+        imCount=1;
+        for k=1:length(ind)
+            extrinsics_id = [XYZ(useful_row(imCount),1),XYZ(useful_row(imCount),2),XYZ(useful_row(imCount),3),extrinsics(4),extrinsics(5),extrinsics(6)];
+            extrinsicsVariable(imCount,:)=extrinsics_id; %把外参存在extrinsicsVariable中
+            imCount=imCount+1;
+            
+        end
+        extrinsics = extrinsicsVariable;
 
+    end
+        
+        
+        
+        save([savePath saveName ],'extrinsics','t','intrinsics');
 end
+
 

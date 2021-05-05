@@ -26,7 +26,7 @@ disp('----------step1 start--------------- ');
 step1.videoPath = 'E:/海浪原始数据/2020年10月惠州数据/_10.24_双月湾/第二组/DJI_0150.MOV';
 step1.savePath = ds_image_savePath;
 step1.fs = fs;
-step1.videoRange = [100,400]; %5分钟的截取时长
+step1.videoRange = [100,400]; %5分钟的截取时长,一共有（end-begin）*fs张采样图片
 downSampleFromVideo(step1);
 
 disp('----------step1 finish--------------- ');
@@ -163,8 +163,8 @@ step6.rotateInfo_path = [mat_savePath 'RotateInfo_firstFrame.mat'];
 step6.roi_x = [0,200]; 
 step6.roi_y = [0,100];
 %将NED->Local坐标系的参数放在这一步来实现
-step6.local_angle = -148.5;%GEO(NED)->Local(world)的偏航角，右手定则定方向
-step6.local_origin = [0,0];%NED和world的原点偏置，一般都是0
+step6.local_angle = -148.5; %GEO(NED)->Local(world)的偏航角，右手定则定方向
+step6.local_origin = [0,0]; %NED和world的原点偏置，一般都是0
 step6.pixel_resolution = 0.5;
 step6.savePath = mat_savePath;
 
