@@ -59,7 +59,15 @@ K = [-fx 0 c0U;
 azimuth= extrinsics(4);
 tilt=extrinsics(5);
 swing=extrinsics(6);
-[R] = CIRNangles2R(azimuth,tilt,swing);
+[R] = my_angles2R(azimuth,tilt,swing);
+
+
+%添加一种计算旋转矩阵的方式
+
+
+
+
+
 
 
 
@@ -70,15 +78,17 @@ y=extrinsics(2);
 z=extrinsics(3);
 
 IC = [eye(3) [-x -y -z]'];
-
+% camera_world= [x y z]';
+% 
+% R*camera_world
 
 
 
 
 %% Section 4: Combine K, Rotation, and Translation Matrix into P
 P = K*R*IC;
-P = P/P(3,4);   % Normalize for Homogeneous Coordinates.
+P = P/P(3,4); %单应性矩阵可以以3行4列的那个元素进行归一化
 
 
-
+end
 

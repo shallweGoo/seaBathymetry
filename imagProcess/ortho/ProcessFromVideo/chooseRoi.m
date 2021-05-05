@@ -1,10 +1,22 @@
-function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,savePath) 
+function chooseRoi(step) 
 %CHOOSEROI 在每一帧的图片上选择感兴趣的区域
 %   roi_x为感兴趣的区域x轴的范围，形式应为[x1,x2];
 %   roi_y为感兴趣的区域y轴的范围，形式应为[y1,y2];
-%   在算世界坐标时已经进行了旋转，可能原点那些都不用重新指定了
-
+%   1、如果在算世界坐标时已经进行了旋转，旋转角度不用重新指定，就为0
+%   2、如果用的是NED坐标系，则还需要旋转到自定义坐标系，需要指定旋转角
     
+
+    %本函数需要的参数
+    gcpInfo_path = step.gcpInfo_path;
+    rotateInfo_path = step.rotateInfo_path;
+    ixlim = step.roi_x;
+    iylim = step.roi_y;
+    idxdy = step.pixel_resolution;
+    savePath = step.savePath;
+    localOrigin = step.local_origin; %自定义坐标系原点（由于之前的世界坐标用的就是自定义坐标，故直接定义为0即可）
+    localAngle = step.local_angle; % GEO(NED)->Local(world)的偏航角，右手定则定方向
+
+
     tmp1 = load(gcpInfo_path);
     gcp = tmp1.gcp;
 
@@ -15,43 +27,26 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
 
     clear tmp1;
     clear tmp2;
-
-    localOrigin = [0,0]; %自定义坐标系原点（由于之前的世界坐标用的就是自定义坐标，故直接定义为0即可）
-    localAngle =0; % Degrees +CCW from Original World X
-
+    
     worldCoord = gcp(1).WorldCoordSys;
     imagePath{1} = gcp(1).imagePath;
     
     rotateInfoPath{1} = rotateInfo_path;
     
     saveName = 'roiInfo';
-    % Enter if you would like to INPUT your grid in  rotated local
-    % coordinates. 1=local coordinates, 0= world coordinates.
-    % The function will still rectify both coordinate systems regardless
-    % of localFlagInput value. LocalFlagInput only dictates
-    % the coordinate system of the input and which direction the rotation
-    % will occur. If localOrigin and localAngle =0; this value is irrelevant.
 
-    localFlagInput=1;
-
-    
+    %这个标志位决定了目标区域的范围是在哪个坐标系下的。
+    %localFlagInput=1 ： 说明ixlim，iylim是在local坐标系下的
+    %localFlagInput=0 ： 说明ixlim，iylim是在ned坐标系下的
+    %如果localOrigin 和 localAngle = 0，那么该值就是无效的。
+    localFlagInput=step.local_flag_input;
 
     % Grid Specification. Enter the limits (ixlim, iylim) and resolution(idxdy)
     % of your rectified grid. Coordinate system entered will depend on
     % localFlagInput. Units should be consistent with world Coordinate system
     % (m vs ft, etc).
 
-
-    % ixlim=[0 700];
-    % iylim=[0 1000];
-    % idxdy=2;
-
-
-    ixlim = roi_x;
-    iylim = roi_y;
-    idxdy= pixel_resolution;
-
-    teachingMode=1;
+    teachingMode=1; %教学模式，可以选取的范围效果
 
     % Elevation Specification. Enter the elevation you would like your grid
     % rectified as. Typically, CIRN specifies an constant elevation across the
@@ -76,8 +71,6 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
     % Value should be entered in the World Coordinate system and units.
 
     iz = 0; %选择区域时默认区域的z值为0（海平面）
-
-
 
 
 
@@ -147,8 +140,9 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
     for k=1:length(rotateInfoPath)
         %  World Extrinsics
         extrinsics{k}=extrinsics{k};
-
-        %  Local Extrinsics
+        
+        % Local Extrinsics
+        % 将GEO(NED)->Camera的外参转化为Local(跨岸和沿岸)->Camera的外参
         localExtrinsics{k} = localTransformExtrinsics(localOrigin,localAngle,1,extrinsics{k});
     end
 
@@ -173,36 +167,27 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
     %  Assign Input Grid to Wolrd/Local, and rotate accordingly depending on
     %  inputLocalFlag
 
-    % 输入的参数为世界坐标的参数
-    
     if localFlagInput==0
         % Assign World Grid as Input Grid
         X=iX;
         Y=iY;
         Z=iZ;
-
-        % Assign local Grid as Rotated input Grid
+        %当输入的是NED的X,Y范围时，要将其转化为local下的X,Y范围
         [ localX,localY]=localTransformEquiGrid(localOrigin,localAngle,1,iX,iY);
         localZ=localX.*0+iz; %z值基本设为0，对结果好像没有显著性的影响
-
     end
-    %输入的参数为本地坐标
+    
+    
     if localFlagInput==1
         % Assign local Grid as Input Grid
         localX=iX;
         localY=iY;
         localZ=iZ;
 
-        % Assign world Grid as Rotated local Grid
+        % 当输入的是local的X,Y范围时，要将其转化为ned下的X,Y范围
         [X,Y]=localTransformEquiGrid(localOrigin,localAngle,0,iX,iY);
         Z=X*.0+iz; %z值基本设为0，对结果好像没有显著性的影响
     end
-
-
-
-
-
-
 
     %% Section 8: Rectification
 
@@ -214,19 +199,24 @@ function chooseRoi(gcpInfo_path,rotateInfo_path,roi_x,roi_y,pixel_resolution,sav
     % rectified output.
 
     % World Rectification
+
+    
     [Ir]= imageRectifier(I,intrinsics,extrinsics,X,Y,Z,teachingMode);
+    
+%     [Ir]= imageRectifier(I,intrinsics,localExtrinsics,localX,localY,iZ,teachingMode);
     % Specify Title
     subplot(2,2,[2 4]);
     title(worldCoord);
 
     localIr = [];
     % Local Rectification (If specified)
-    if localOrigin~=[0,0] & localAngle ~= 0
+    
+    %本来为&,改为|
+    if localOrigin~=[0,0] | localAngle ~= 0
         [localIr]= imageRectifier(I,intrinsics,localExtrinsics,localX,localY,localZ,teachingMode);
-
         % Specify Title
         subplot(2,2,[2 4])
-        title('Local Coordinates')
+        title('自建坐标系(LOCAL)：米')
 
     end
 

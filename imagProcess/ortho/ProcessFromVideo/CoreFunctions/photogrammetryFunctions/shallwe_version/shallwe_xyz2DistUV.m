@@ -33,25 +33,17 @@
 
 
 
-function  [UVd,flag] = xyz2DistUV(intrinsics,extrinsics,xyz)
+function  [UVd,flag] = shallwe_xyz2DistUV(intrinsics,extrinsics,xyz)
 
 % Take Calibration Information, combine it into a sigular P matrix
 % containing both intrinsics and extrinsic information. Requires function
 % intrinsicsExtrinsicsToP.
 
-% [P, K, R, IC] = intrinsicsExtrinsics2P( intrinsics, extrinsics );
-
-% [P, K, R, IC] = my_intrinsicsExtrinsics2P(intrinsics, extrinsics );
-
-[P, K, R, IC] = shallwe_intrinsicsExtrinsics2P(intrinsics, extrinsics );
-
-
+[P, K, R, IC] = shallwe_intrinsicsExtrinsics2P(intrinsics, extrinsics);
 
 % Find the Undistorted UV Coordinates atributed to each xyz point.
 
-UV = P*[xyz'; ones(1,size(xyz,1))]; %旋转的方式和定义欧拉角的方式并不相同，这种方式看上去更为直观
-                                    %详细可以参考用户手册
-                                    
+UV = P*[xyz'; ones(1,size(xyz,1))];
                                     
 UV = UV./repmat(UV(3,:),3,1);  % Make Homogenenous
 
@@ -60,17 +52,19 @@ UV = UV./repmat(UV(3,:),3,1);  % Make Homogenenous
 % this. So we distort our undistorted UV coordinates to pull the correct
 % pixel values from the distorted image. Flag highlights invalid points
 % (=0) using intrinsic criteria.
+
+% 用于校正畸变的函数
 [Ud,Vd,flag] = distortUV(UV(1,:),UV(2,:),intrinsics);
 
 % Find Negative Zc Camera Coordinates. Adds invalid point to flag (=0).
 
-%求Z_c这个系数
-
 xyzC = R*IC*[xyz'; ones(1,size(xyz,1))];
-bind= find(xyzC (3,:)<=0);
+bind= find(xyzC(3,:)<=0);
 flag(bind)=0;
 
 % Make into a singular matrix for use in the non-linear solver
 UVd = [Ud; Vd];
+
+end
 
 

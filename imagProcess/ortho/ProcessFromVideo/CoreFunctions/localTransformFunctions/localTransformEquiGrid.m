@@ -59,10 +59,12 @@ function [Xout,Yout]= localTransformEquiGrid(localOrigin,localAngle,directionFla
 
 %% Section 1: Find Input Grid Extents + Resolution
 % Find Corners of XY Local Grid to Find Extents of AOI
-iCorners(1,:)= [min(min(Xin)), min(min(Yin))]; % [x,y]
-iCorners(2,:)= [min(min(Xin)), max(max(Yin))];
-iCorners(3,:)= [max(max(Xin)), max(max(Yin))];
-iCorners(4,:)= [max(max(Xin)), min(min(Yin))];
+% AOI的四个角点
+% 根据定义的不同，在本程序和定义中逆时针确定4个角点
+iCorners(1,:)= [min(min(Xin)), min(min(Yin))]; %左下
+iCorners(2,:)= [min(min(Xin)), max(max(Yin))]; %右下
+iCorners(3,:)= [max(max(Xin)), max(max(Yin))]; %右上
+iCorners(4,:)= [max(max(Xin)), min(min(Yin))]; %左上
 
 % Find Resolution, assuming dx and dy are equal.
 idxdy=nanmean(nanmean(diff(Xin)));
@@ -76,16 +78,18 @@ end
 
 %World to Local
 if directionFlag==1
-    [ oCorners(:,1),oCorners(:,2)]= localTransformPoints(localOrigin,localAngle,1,iCorners(:,1),iCorners(:,2));
+    
+    %把角点的X,Y分别输进去得到local坐标系下的4个角点，确定区域范围
+    [ oCorners(:,1),oCorners(:,2)] = localTransformPoints(localOrigin,localAngle,1,iCorners(:,1),iCorners(:,2)); 
 end
 
 %Local to World
 if directionFlag==0
-    [ oCorners(:,1),oCorners(:,2)]= localTransformPoints(localOrigin,localAngle,0,iCorners(:,1),iCorners(:,2));
+    [ oCorners(:,1),oCorners(:,2)] = localTransformPoints(localOrigin,localAngle,0,iCorners(:,1),iCorners(:,2));
     
 end
 
-% Find the limits of the AOI in Transformed Coordinates
+% 目标区域转化完的区域四个点的坐标
 oxlim=[min(oCorners(:,1))  max(oCorners(:,1)) ];
 oylim=[min(oCorners(:,2))  max(oCorners(:,2)) ];
 

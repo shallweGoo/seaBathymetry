@@ -10,6 +10,10 @@ function getPixelImage(roi_path,extrinsicFullyInfo_path,unsolvedPic_path,savePat
 % x_rag:x_transect的范围，x的范围
 % y_dy,y_ox,y_rag 同上解释
 
+    
+
+
+
 
     %无人机系统得到的图片或者不需要的时候，留为空就行了，在后面载入的extrinsicFullyInfo会记录数据
     t={};
@@ -432,11 +436,6 @@ function getPixelImage(roi_path,extrinsicFullyInfo_path,unsolvedPic_path,savePat
     
     
 end
-
-% function [outputArg1,outputArg2] = rotImg(pixelInst_path,savePath)
-% %ROTIMG 为了旋转pixelInst中的像素下采样图，得到海浪自下往上传播的效果图
-%     
-% end
 
 
 

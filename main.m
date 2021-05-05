@@ -187,7 +187,7 @@ if mode == 1
         interpolation.first_x = find(~isnan(interpolation.now_y),1,'first');
         interpolation.insert_x_idx = find(interpolation.insert_x>=interpolation.first_x & interpolation.insert_x <= interpolation.terminate_x);
         interpolation.insert_x = interpolation.insert_x(interpolation.insert_x_idx);
-        interpolation.total_x(interpolation.insert_x) =[];
+        interpolation.total_x(interpolation.insert_x) = [];
         interpolation.now_y(interpolation.insert_x) = [];
         interpolation.insert_y = interp1(interpolation.total_x,interpolation.now_y,interpolation.insert_x,'nearest');
         interpolation.temp(interpolation.insert_x) = interpolation.insert_y;

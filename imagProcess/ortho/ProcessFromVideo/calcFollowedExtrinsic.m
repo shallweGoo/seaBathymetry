@@ -1,4 +1,4 @@
-function  calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrinsic_pic_path,savePath,mode)
+function  calcFollowedExtrinsic(step5)
 % calcFollowedExtrinsic 用来稳定接下来的图像,用来计算每帧的外参，这个步骤可以用两种方法
 % mode = 1，利用scp来计算外参
 % mode = 2，利用模板来匹配gcp，进而计算外参
@@ -10,13 +10,17 @@ function  calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrin
     %savePath为存储路径
     
     
-
- %  添加核心函数
-    addpath(genpath('./CoreFunctions/'));
+    scp_path = step5.scp_path;
+    gcp_path = step5.gcp_path;
+    rotateInfo_path = step5.rotateInfo_path;
+    unsovledExtrinsic_pic_path = step5.unsovledExtrinsic_pic_path;
+    savePath = step5.savePath;
 
     
     if nargin<6
         mode = 1;
+    else
+        mode = step5.mode;
     end
     
     tmp1 = load(scp_path);
@@ -54,16 +58,13 @@ function  calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrin
         
         saveName = 'extrinsicFullyInfo';
        
-        
-
-
         % 第一列为scp的编号，第二列为scp在真实世界坐标系下的z估计值，坐标系应当和计算外参所使用的坐标系相同
         % initailCamSolutionMeta.worldCoordSys
-        scpz=[ 1  7; % scp.num   z value
-            2  7;
-            3  7;
-            4  7
-            5  7];
+        scpz=[ 1  -2; % scp.num   z value
+            2  -2;
+            3  0;
+            4  0
+            5  0];
 
         %  记录一下z值所使用的坐标系
         % (initailCamSolutionMeta.worldCoordSys)
@@ -240,6 +241,7 @@ function  calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrin
             plot(scpUVdn(1,:),scpUVdn(2,:),'ro','linewidth',2,'markersize',10);
             
             % Plot Reprojected UVd using new Extrinsics and original xyzo coordinates
+            % 黄色的圈是计算出来的外参到
             [UVd] = xyz2DistUV(intrinsics,extrinsics_n,xyzo);
             uvchk = reshape(UVd,[],2);
             plot(uvchk(:,1),uvchk(:,2),'yo','linewidth',2,'markersize',10);
@@ -268,8 +270,10 @@ function  calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrin
         subplot(6,1,1)
         plot(t,extrinsicsVariable(:,1)-extrinsicsVariable(1,1))
         ylabel('/Delta x')
-        title('Change in Extrinsics over Collection')
-
+%         title('Change in Extrinsics over Collection')
+        title('外参变化曲线')
+        
+        
         % YCoordinate
         subplot(6,1,2)
         plot(t,extrinsicsVariable(:,2)-extrinsicsVariable(1,2))
@@ -283,17 +287,17 @@ function  calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrin
         % Azimuth
         subplot(6,1,4)
         plot(t,rad2deg(extrinsicsVariable(:,4)-extrinsicsVariable(1,4)))
-        ylabel('/Delta Azimuth [^o]')
+        ylabel('/Delta roll [^o]')
 
         % Tilt
         subplot(6,1,5)
         plot(t,rad2deg(extrinsicsVariable(:,5)-extrinsicsVariable(1,5)))
-        ylabel('/Delta Tilt[^o]')
+        ylabel('/Delta pitch[^o]')
 
         % Swing
         subplot(6,1,6)
         plot(t,rad2deg(extrinsicsVariable(:,6)-extrinsicsVariable(1,6)))
-        ylabel('/Delta Swing [^o]')
+        ylabel('/Delta yaw [^o]')
 
 
         % Set grid and datetick if time is provided
@@ -340,9 +344,9 @@ function  calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrin
         disp(['X Standard Dev: ' num2str(variableCamSolutionMeta.solutionSTD(1))])
         disp(['Y Standard Dev: ' num2str(variableCamSolutionMeta.solutionSTD(2))])
         disp(['Z Standard Dev: ' num2str(variableCamSolutionMeta.solutionSTD(3))])
-        disp(['Azimuth Standard Dev: ' num2str(rad2deg(variableCamSolutionMeta.solutionSTD(4))) ' deg'])
-        disp(['Tilt Standard Dev: ' num2str(rad2deg(variableCamSolutionMeta.solutionSTD(5))) ' deg'])
-        disp(['Swing Standard Dev: ' num2str(rad2deg(variableCamSolutionMeta.solutionSTD(6))) ' deg'])
+        disp(['roll Standard Dev: ' num2str(rad2deg(variableCamSolutionMeta.solutionSTD(4))) ' deg'])
+        disp(['pitch Standard Dev: ' num2str(rad2deg(variableCamSolutionMeta.solutionSTD(5))) ' deg'])
+        disp(['yaw Standard Dev: ' num2str(rad2deg(variableCamSolutionMeta.solutionSTD(6))) ' deg'])
     end
     
     

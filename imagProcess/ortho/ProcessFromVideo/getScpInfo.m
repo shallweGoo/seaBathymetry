@@ -1,9 +1,12 @@
-function scpInfo = getScpInfo(gcp_path,savePath,fs,brightFlag)
+function scpInfo = getScpInfo(step4)
 % GETSCPINFO 该函数获取关于scp（stable control point）的信息，用于后面的gcp的匹配，CRIN方法
 % 选取的方法和选取gcp的方式一样，用鼠标点击的方式
 % 利用颜色阈值，用均值计算中心的方法
 
-
+    gcp_path = step4.gcp_path;
+    savePath = step4.savePath;
+    fs = step4.fs;
+    brightFlag = step4.brightFlag;
 
     if nargin < 3
         fs = 2;

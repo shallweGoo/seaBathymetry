@@ -48,13 +48,22 @@ if directionFlag==1
     extrinsicsOut=nan(length(extrinsicsIn(:,1)),6);
     
     % Transform X and Y coordinate of extrinsics
-    [ extrinsicsOut(:,1) extrinsicsOut(:,2)]= localTransformPoints(localOrigin,localAngle,1,extrinsicsIn(:,1),extrinsicsIn(:,2));
     
-    % Z, Tilt and Swing are the Same Since Just Horizontal Rot. and Tran
-    extrinsicsOut(:,[ 3 5 6])= extrinsicsIn(:,[3 5 6]);
+    [ extrinsicsOut(:,1),extrinsicsOut(:,2)]= localTransformPoints(localOrigin,localAngle,1,extrinsicsIn(:,1),extrinsicsIn(:,2));
     
-    % Rotate Azimuth
-    extrinsicsOut(:,4)= extrinsicsIn(:,4)+[deg2rad(localAngle)];
+    %坐标Z值和roll,pitch都是一样的
+%     extrinsicsOut(:,[ 3 5 6])= extrinsicsIn(:,[3 5 6]);
+    extrinsicsOut(:,[3 4 5]) = extrinsicsIn(:,[3 4 5]);
+    
+    % 偏航角yaw的变化
+    %该步骤为了得到local->camera的旋转矩阵
+    
+    %此时已经有ned->camera的旋转矩阵了，所以为了得到local->camera的旋转矩阵,
+    %就要得到local->ned的旋转矩阵再左乘ned->camera的旋转矩阵，但是此时实际上输入的是ned->locald的偏航角（例如-148.5°）
+    %所以为了得到local->ned的旋转矩阵，就要用之前外参的偏航角部分减去ned->locald的偏航角（或者是加上local->ned的偏航角）
+    %与旋转矩阵定义和之前欧拉角的定义有关系
+    
+    extrinsicsOut(:,6)= extrinsicsIn(:,6)+deg2rad(-localAngle);
     
 end
 
@@ -69,14 +78,15 @@ if directionFlag==0
     extrinsicsOut=nan(length(extrinsicsIn(:,1)),6);
     
     % Transform X and Y coordinate of extrinsics
-    [ extrinsicsOut(:,1) extrinsicsOut(:,2)]= localTransformPoints(localOrigin,localAngle,0,extrinsicsIn(:,1),extrinsicsIn(:,2));
+    [ extrinsicsOut(:,1),extrinsicsOut(:,2)]= localTransformPoints(localOrigin,localAngle,0,extrinsicsIn(:,1),extrinsicsIn(:,2));
     
-    % Z, Tilt and Swing are the Same Since Just Horizontal Rot. and Tran
-    extrinsicsOut(:,[ 3 5 6])= extrinsicsIn(:,[3 5 6]);
-    
-    % Rotate Azimuth
-    extrinsicsOut(:,4)= extrinsicsIn(:,4)-[deg2rad(localAngle)];
-    
+    %坐标Z值和roll,pitch都是一样的
+%     extrinsicsOut(:,[ 3 5 6])= extrinsicsIn(:,[3 5 6]);
+    extrinsicsOut(:,[3 4 5]) = extrinsicsIn(:,[3 4 5]);
+
+
+    % 偏航角yaw的变化
+    extrinsicsOut(:,6)= extrinsicsIn(:,6)+deg2rad(localAngle);
 end
 
 

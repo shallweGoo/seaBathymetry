@@ -54,10 +54,14 @@ if sum(extrinsicsKnownsFlag)==0  %all values are zero
     %  and xyz [@(extrinsics,xyz)], all input left out of those brackets (intrinsics) should
     %  not be solved for and taken as constants in this solution.
     
-    [extrinsics,R,J,CovB]   = nlinfit(xyz,[UV(:,1); UV(:,2)],@(extrinsics,xyz)xyz2DistUV(intrinsics,extrinsics,xyz), extrinsicsInitialGuess);
     
-    %   extrinsics is the solved camera EO where R,J,CovB are metrics of the solution
-    %   and can be explored in nlinfit documentation.
+    %用xyz作为输入，UV作为输出，模型为第三个参数，第四个参数为要估计的参数的初始值
+    % 变量名=@(输入参数列表)运算表达式
+    %最小二乘法拟合所得到的参数
+    
+    [extrinsics,R,J,CovB] = nlinfit(xyz,[UV(:,1); UV(:,2)],@(extrinsics,xyz)xyz2DistUV(intrinsics,extrinsics,xyz), extrinsicsInitialGuess);
+    
+    %   最小二乘法的误差估计，详见nlinfit的说明文档
     
     extrinsicsError=sqrt(diag(CovB));
     
@@ -67,7 +71,7 @@ end
 
 
 
-%% Section 2: If any values of extrinsics are known
+%% Section 2: 如果某些外参是知道的
 if sum(extrinsicsKnownsFlag)>0  %if any value is not zero
     
     % The following section essentially does the same thing as Section 1.

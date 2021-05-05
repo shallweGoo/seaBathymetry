@@ -1,4 +1,4 @@
-function gcpInfo =  getGcpInfo_UV(step,mode)
+function gcpInfo =  getGcpInfo_UV(step_info,mode)
     %该函数计算外参 (内参已经由相机标定得出)
     %分步(可分为两种方法 1)存下第一帧的gcp坐标,并以此为标准 2)存在第一帧的gcp模板，用于后面的模板匹配 )
     %1.选择gcp在图像坐标系中的坐标(U,V) 
@@ -9,11 +9,11 @@ function gcpInfo =  getGcpInfo_UV(step,mode)
     %mode1 方法为获取控制点的坐标
     %mode2 方式为模板匹配 除了获取控制点的坐标之外还获取其模板
 
-    imagePath = step.UV.imagePath;
-    gcpSavePath = step.UV.gcpSavePath;
+    imagePath = step_info.UV.imagePath;
+    gcpSavePath = step_info.UV.gcpSavePath;
     
-    if( isfield(step.UV,'fs'))
-        fs = step.UV.fs;
+    if( isfield(step_info.UV,'fs'))
+        fs = step_info.UV.fs;
     else
         fs = 2;
     end
@@ -28,14 +28,6 @@ function gcpInfo =  getGcpInfo_UV(step,mode)
     unvalid = -99;
     saveName = 'gcpInfo';
     
-    
-    
-    
-    
-    
-
-   
-   
     %%
 
     if isempty(imagePath)==0
@@ -180,10 +172,8 @@ function gcpInfo =  getGcpInfo_UV(step,mode)
             gcp(k).Fs = fs;
             if mode == 2 
                 gcp(k).template = Tsave(k).tp;
-            end
-                
+            end    
         end
-        
     end
         
     
@@ -226,13 +216,8 @@ function gcpInfo =  getGcpInfo_UV(step,mode)
     
     save([gcpSavePath  saveName '_firstFrame'],'gcp');
     
-    
-    
-    
     %输出信息
     gcpInfo = gcp;
-    
-    
         
 end
         

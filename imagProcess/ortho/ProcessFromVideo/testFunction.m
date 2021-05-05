@@ -40,3 +40,16 @@ getPixelImage(roi_path,rotateInfo_path,unsolvedPic_path,savePath,inputData);
 savePath = 'F:/workSpace/matlabWork/imgResult/orthImg/';
 pixelInst_path = './pixelImg.mat';
 rotImg(pixelInst_path,savePath);
+
+
+
+
+%%
+R_new_ned = shallwe_angles2R(148.5,0,0);
+R_ned_camera = shallwe_angles2R(0,35.60,122.80);
+R_new_camera = R_ned_camera*R_new_ned;
+
+
+
+
+

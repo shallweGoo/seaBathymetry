@@ -40,9 +40,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function [ Xout Yout]= localTransformPoints(localOrigin,localAngle,directionFlag,Xin,Yin)
+function [ Xout,Yout]= localTransformPoints(localOrigin,localAngle,directionFlag,Xin,Yin)
 
 %% Section 1: Transformation from Geo (EN) -->  Local  (XY)
+%参考坐标系（NED）转到local坐标系（自定义）
 if directionFlag ==1
     % Translate from origin
     ep=Xin-localOrigin(1);
