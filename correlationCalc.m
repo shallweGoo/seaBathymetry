@@ -5,11 +5,13 @@ function [maxCor,TimeLag]=correlationCalc(signal1,signal2,timeInterval)
 % %     plot(seriesNum,corMag_gpu); 
 %     corMag = gather(corMag_gpu);
 
+%     plot(signal1);
+%     hold on;
+%     plot(signal2);
+
 
     [corMag,seriesNum]=xcorr(signal1,signal2,'coeff');
 %     plot(seriesNum,corMag);
-
-
     
     [maxCor,TimeLag] = max(corMag);%最大的值,
     TimeLag = seriesNum(TimeLag)*timeInterval; %得到当前的时间

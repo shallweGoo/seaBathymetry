@@ -1,3 +1,33 @@
+function guassfilterForOrthoImg(step)
+
+    imgInfo.path = step.path;
+    imgInfo.save_path = step.save_path;
+
+
+    allFile = string(ls(imgInfo.path));
+    allFile = allFile(3:end);
+
+    len = length(allFile);
+
+    for i = 1:len
+        org_pic = imread((imgInfo.path+allFile(i)));
+        res = gaussfilter(org_pic,50);
+        imwrite(res,(imgInfo.save_path+allFile(i)));
+        disp([num2str(i/len*100) '% Complete'])
+    end
+
+
+
+    pi1 = org_pic(:,90);
+    res = gaussfilter(org_pic,50);
+    pi2 = res(:,90);
+    figure(1);plot((1:size(pi1,1)),pi1,'r',(1:size(pi1,1)),pi2,'black');
+    figure(2);imshow(res);
+%     
+end
+
+
+
 function [image_result] =gaussfilter(image_orign,D0)
 
     %GULS 高斯低通滤波器
@@ -51,7 +81,9 @@ function [image_result] =gaussfilter(image_orign,D0)
     image_result = ifftshift(image_fftshift);%将原点反变换回原始位置
 
     image_result = uint8(real(ifft2(image_result)));
+end
 
 %real函数用于取复数的实部；
 
 %uint8函数用于将像素点数值转换为无符号8位整数；ifft函数反傅里叶变换
+

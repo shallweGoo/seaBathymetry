@@ -7,7 +7,7 @@ function fft_M = fftAnalysis(signal,Fs)
     frequence = (0:N/2-1)*Fs/N;
     fft_M = fft_M/N;
     fft_M(2:end) = 2*fft_M(2:end);
-    
+    figure;
     plot(frequence,fft_M(1:length(frequence)));
 end
 

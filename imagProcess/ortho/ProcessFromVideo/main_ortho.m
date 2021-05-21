@@ -1,11 +1,16 @@
 
 % 该函数为从一个视频开始，直到一组正射图像的整个流程
-% 对于路径建议都使用绝对路径！
+
 addpath(genpath('F:/workSpace/matlabWork/seaBathymetry/imagProcess/ortho/ProcessFromVideo/CoreFunctions/'));
-addpath('F:/workSpace/matlabWork/seaBathymetry/imagProcess/ortho/ProcessFromVideo/CoreFunctions/');
 mat_savePath = 'F:/workSpace/matlabWork/imgResult/resMat/';
 ds_image_savePath =  'F:/workSpace/matlabWork/imgResult/downSample/';
+intrinsics_name = 'intrinsicMat_phantom4rtk.mat';
+% intrinsics_name = 'intrinsicMat_mavir_pro_1080.mat';
 fs = 2;
+
+if ~isfolder(ds_image_savePath)
+     mkdir('F:/workSpace/matlabWork/imgResult','downSample');
+end
 
 
 
@@ -23,10 +28,13 @@ fs = 2;
 disp('----------step1 start--------------- ');
 % step1.videoPath = 'E:/海浪原始数据/2021.01.21双月湾/2021_01_22早/DJI_0189.MOV';
 % step1.videoPath = 'E:/海浪原始数据/2021.01.12双月湾/视频数据/第一组/DJI_0178.MOV';
-step1.videoPath = 'E:/海浪原始数据/2020年10月惠州数据/_10.24_双月湾/第二组/DJI_0150.MOV';
+%step1.videoPath = 'E:/海浪原始数据/2020年10月惠州数据/_10.24_双月湾/第五组/DJI_0160.MOV';
+%step1.videoPath = 'E:/海浪原始数据/2020年10月惠州数据/_10.24_双月湾/第二组/DJI_0150.MOV';
+
+step1.videoPath = 'H:/2021_05_15_data/data/2021_05_15上午数据/第一组定点/DJI_0131.MOV';
 step1.savePath = ds_image_savePath;
 step1.fs = fs;
-step1.videoRange = [100,400]; %5分钟的截取时长,一共有（end-begin）*fs张采样图片
+step1.videoRange = [0,300]; %5分钟的截取时长,一共有（end-begin）*fs张采样图片
 downSampleFromVideo(step1);
 
 disp('----------step1 finish--------------- ');
@@ -42,21 +50,39 @@ disp('----------step1 finish--------------- ');
 % savePath ： 存放数组的绝对路径
 
 disp('----------step2 start--------------- ');
-
-step2.world.gcp_llh = [
-        [22.5948224,114.8764800,7.41-5.09];
-        [22.5952560,114.8767744,7.53-5.09];
-        [22.5956768,114.8767360,5.09-5.09];
-        [22.5958368,114.8764544,5.14-5.09];
-        [22.5960064,114.8761216,5.11-5.09];
-];
-step2.world.o_llh = [22.5956768,114.8767360,5.09-5.09];
 step2.world.savePath = mat_savePath;
 
-step2.world.uav_llh = [22.596208333333333,114.87723055555556,101.84];%无人机机体的经纬高,用rtk应该会准很多
+% 第一次去双月湾的gps信息
+% step2.world.gcp_llh = [
+%         [22.5948224,114.8764800,7.41-5.09];
+%         [22.5952560,114.8767744,7.53-5.09];
+%         [22.5956768,114.8767360,5.09-5.09];
+%         [22.5958368,114.8764544,5.14-5.09];
+%         [22.5960064,114.8761216,5.11-5.09];
+% ];
+% step2.world.o_llh = [22.5956768,114.8767360,5.09-5.09];
+
+%第四次去双月湾的gps信息
+
+
+
+step2.world.gcp_llh = [
+    22.59567364 114.87665961 1.975;
+    22.59566861 114.87646475 1.93;
+    22.59588889 114.87630925 2.018;
+    22.59593056 114.87597864 1.949;
+    22.59597914 114.87577144 1.911
+];
+
+
+step2.world.o_llh = [22.59567364 114.87665961 1.975];
+
+% step2.world.uav_llh = [22.59637164 114.8772232 89.682];%无人机机体的经纬高,用rtk应该会准很多
+
+step2.world.uav_llh = [22.59637164 114.8772232 89.682];
+
 
 getGcpInfo_World(step2);
-
 
 
 % 2.2 getGcpInfo_UV函数原型为：function gcpInfo =  getGcpInfo_UV(imagePath,gcpSavePath,fs,mode)
@@ -78,8 +104,6 @@ clear ff_name;
 
 disp('----------step2 finish--------------- ');
 
-
-
 %% step3 matchGcp
 % 第三步 以第一帧获取整合gcp数据（将UV数据和World数据结合）,以及第一帧的外参
 % 函数原型 matchGcp(gcpInfo_UV_path,gcpInfo_world_path,intrinsic_path,savePath,mode)
@@ -93,13 +117,20 @@ disp('----------step3 start--------------- ');
 
 step3.gcpInfo_UV_path = [mat_savePath 'gcpInfo_firstFrame.mat'];
 step3.gcpInfo_world_path = [mat_savePath 'gcpInfo_world.mat'];
-step3.intrinsic_path = './neededData/intrinsicMat.mat';
+step3.intrinsic_path = ['./neededData/',intrinsics_name];
 step3.savePath = mat_savePath;
 
+step3.mode = 2;
+%非线性拟合的初始值。
 
-step3.no_use_gcp.ned2b = [-35.6,0,-122.80];
+%前三为相机在NED坐标系下的坐标
+%后三为相机的roll,yaw,ptich
+step3.extrinsicsInitialGuess = [50  50  -90 deg2rad(-26.7) deg2rad(0) deg2rad(-100)];
+step3.extrinsicsKnownsFlag = [0,0,0,0,0,0];
 
-matchGcp(step3,1);
+step3.no_use_gcp.ned2b = [-26.7,0,-126.40];
+
+matchGcp(step3);
 
 disp('----------step3 finish--------------- ');
 
@@ -117,7 +148,8 @@ disp('----------step4 start--------------- ');
 step4.gcp_path = [mat_savePath 'gcpFullyInfo.mat'];
 step4.savePath = mat_savePath;
 step4.fs = fs;
-step4.brightFlag = 'bright'; 
+ step4.brightFlag = 'bright'; 
+% step4.brightFlag = 'dark'; 
 getScpInfo(step4);
 
 disp('----------step4 finish--------------- ');
@@ -141,6 +173,7 @@ step5.rotateInfo_path = [mat_savePath 'RotateInfo_firstFrame.mat']; %这一个是mat
 step5.unsovledExtrinsic_pic_path = ds_image_savePath;
 step5.savePath = mat_savePath;
 step5.mode = 1;
+step5.fs = fs;
 
 calcFollowedExtrinsic(step5);
 
@@ -160,10 +193,11 @@ disp('-----------step6 start--------------- ');
 
 step6.gcpInfo_path = [mat_savePath 'gcpFullyInfo.mat'];
 step6.rotateInfo_path = [mat_savePath 'RotateInfo_firstFrame.mat'];
-step6.roi_x = [0,200]; 
-step6.roi_y = [0,100];
+step6.roi_x = [0,300];
+step6.roi_y = [0,150];
 %将NED->Local坐标系的参数放在这一步来实现
-step6.local_angle = -148.5; %GEO(NED)->Local(world)的偏航角，右手定则定方向
+% step6.local_angle = -148.5; %GEO(NED)->Local(world)的偏航角，右手定则定方向
+step6.local_angle = -148.5;
 step6.local_origin = [0,0]; %NED和world的原点偏置，一般都是0
 step6.pixel_resolution = 0.5;
 step6.savePath = mat_savePath;
@@ -200,18 +234,18 @@ step7.unsolvedPic_path = ds_image_savePath;
 step7.savePath = mat_savePath;
 
 
-step7.inputStruct.roi_x = [0,200];
-step7.inputStruct.roi_y = [0,100];
+step7.inputStruct.roi_x = [0,300];
+step7.inputStruct.roi_y = [50,150];
 step7.inputStruct.dx = 0.5;
 step7.inputStruct.dy = 0.5;
 
 step7.inputStruct.x_dx = 0.5;
 step7.inputStruct.x_oy = 0;
-step7.inputStruct.x_rag = [0,200];
+step7.inputStruct.x_rag = [0,300];
 
 step7.inputStruct.y_dy = 0.5;
 step7.inputStruct.y_ox = 0;
-step7.inputStruct.y_rag = [0,100];
+step7.inputStruct.y_rag = [50,150];
 
 getPixelImage(step7);
 
@@ -230,10 +264,31 @@ disp('----------step8 start--------------- ');
 step8.pixelInst_path = [mat_savePath 'pixelImg.mat'];
 step8.savePath = 'F:/workSpace/matlabWork/imgResult/orthImg/';
 
+
+if ~isfolder(step8.savePath)
+     mkdir('F:/workSpace/matlabWork/imgResult','orthImg');
+end
+
+
+
 rotImg(step8.pixelInst_path,step8.savePath);
 
 
 disp('----------step8 finish--------------- ');
+
+
+%% 可选平滑滤波项，选择高斯低通滤波器
+
+step9.path = 'F:/workSpace/matlabWork/imgResult/orthImg/';
+step9.save_path = 'F:/workSpace/matlabWork/imgResult/gaussFilter/';
+if ~isfolder(step9.save_path)
+    mkdir('F:/workSpace/matlabWork/imgResult','gaussFilter');
+end
+
+
+guassfilterForOrthoImg(step9);
+
+
 disp('----------ALL STEP FINISH!!--------------- ');
 
 % 完成！

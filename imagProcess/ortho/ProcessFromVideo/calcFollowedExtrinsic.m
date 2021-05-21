@@ -21,7 +21,6 @@ function  calcFollowedExtrinsic(step5)
         mode = step5.mode;
     end
     
-    
     % 各种数据进行处理
     tmp2 = load(gcp_path);
     gcp = tmp2.gcp;
@@ -94,8 +93,8 @@ function  calcFollowedExtrinsic(step5)
         % initailCamSolutionMeta.worldCoordSys
 
 
-        scpz=[ 1  -2; % scp.num   z value
-            2  -2;
+        scpz=[ 1  0; % scp.num   z value
+            2  0;
             3  0;
             4  0
             5  0];
@@ -243,7 +242,7 @@ function  calcFollowedExtrinsic(step5)
         % XCoordinate
         subplot(6,1,1)
         plot(t,extrinsicsVariable(:,1)-extrinsicsVariable(1,1))
-        ylabel('/delta x')
+        ylabel('\Delta x')
 %         title('Change in Extrinsics over Collection')
         title('外参变化曲线')
         
@@ -251,27 +250,27 @@ function  calcFollowedExtrinsic(step5)
         % YCoordinate
         subplot(6,1,2)
         plot(t,extrinsicsVariable(:,2)-extrinsicsVariable(1,2))
-        ylabel('/delta y')
+        ylabel('\Delta y')
 
         % ZCoordinate
         subplot(6,1,3)
         plot(t,extrinsicsVariable(:,3)-extrinsicsVariable(1,3))
-        ylabel('/delta z')
+        ylabel('\Delta z')
 
         % roll
         subplot(6,1,4)
         plot(t,rad2deg(extrinsicsVariable(:,4)-extrinsicsVariable(1,4)))
-        ylabel('/delta roll [^o]')
+        ylabel('\Delta roll [^o]')
 
         % pitch
         subplot(6,1,5)
         plot(t,rad2deg(extrinsicsVariable(:,5)-extrinsicsVariable(1,5)))
-        ylabel('/delta pitch[^o]')
+        ylabel('\Delta pitch [^o]')
 
         % yaw
         subplot(6,1,6)
         plot(t,rad2deg(extrinsicsVariable(:,6)-extrinsicsVariable(1,6)))
-        ylabel('/delta yaw [^o]')
+        ylabel('\Delta yaw [^o]')
 
 
         % Set grid and datetick if time is provided
@@ -342,22 +341,18 @@ function  calcFollowedExtrinsic(step5)
         useful_row = begin_row:5:end_row;
         
         
-        
         %循环存外参
         imCount=1;
         for k=1:length(ind)
             extrinsics_id = [XYZ(useful_row(imCount),1),XYZ(useful_row(imCount),2),XYZ(useful_row(imCount),3),extrinsics(4),extrinsics(5),extrinsics(6)];
             extrinsicsVariable(imCount,:)=extrinsics_id; %把外参存在extrinsicsVariable中
             imCount=imCount+1;
-            
         end
         extrinsics = extrinsicsVariable;
 
-    end
-        
-        
-        
+        %存放外参
         save([savePath saveName ],'extrinsics','t','intrinsics');
+    end
 end
 
 

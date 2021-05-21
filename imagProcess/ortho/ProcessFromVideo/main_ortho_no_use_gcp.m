@@ -5,7 +5,14 @@ addpath(genpath('F:/workSpace/matlabWork/seaBathymetry/imagProcess/ortho/Process
 addpath('F:/workSpace/matlabWork/seaBathymetry/imagProcess/ortho/ProcessFromVideo/CoreFunctions/');
 mat_savePath = 'F:/workSpace/matlabWork/imgResult/resMat/';
 ds_image_savePath =  'F:/workSpace/matlabWork/imgResult/downSample/';
+intrinsics_name = 'intrinsicMat_phantom_2160_matlab.mat';
+% intrinsics_name = 'intrinsicMat_mavir_pro_1080.mat';
 fs = 2;
+
+if ~isfolder(ds_image_savePath)
+     mkdir('F:/workSpace/matlabWork/imgResult','downSample');
+end
+
 
 %%第一帧的图片名称
 ff_name = string(ls(ds_image_savePath));
@@ -94,16 +101,18 @@ disp('----------step3 start--------------- ');
 
 step3.gcpInfo_UV_path = [mat_savePath 'gcpInfo_firstFrame.mat'];
 step3.gcpInfo_world_path = [mat_savePath 'gcpInfo_world.mat'];
-step3.intrinsic_path = './neededData/intrinsicMat.mat';
+step3.intrinsic_path = ['./neededData/',intrinsics_name];
 step3.savePath = mat_savePath;
+step3.mode = 2;
+
+% step3.no_use_gcp.ned2b = [-35.6,0,-122.80];
+
+step3.no_use_gcp.ned2b = [-24,0,-123.9];
 
 
-step3.no_use_gcp.ned2b = [-35.6,0,-122.80];
-
-matchGcp(step3,2);
+matchGcp(step3);
 
 disp('----------step3 finish--------------- ');
-
 %% step4 getScpInfo
 % 第四步,获取Scp的信息
 % 函数原型为 getScpInfo(gcp_path,savePath,fs,brightFlag)
@@ -147,6 +156,7 @@ step5.fs = fs;
 % mode = 1 为非线性拟合计算外参的方式
 % mode = 2 为固定外参的方式
 step5.mode = 2;
+
 step5.ff_name = ff_name;
 step5.extrinsic_info.o_llh = step2.world.o_llh;
 step5.extrinsic_info.videoRange = step1.videoRange;

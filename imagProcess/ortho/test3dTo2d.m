@@ -38,7 +38,7 @@ tmp = src;
 Rotate_ned2cs = Euler2Rotate(-148.5,0,0); %Ö®Ç°ÊÇ148,
 Rotate_ned2cs = Rotate_ned2cs';
 objectPointsInCs = Rotate_ned2cs*objectPoints';
-objectPointsInCs = objectPointsInCs'
+objectPointsInCs = objectPointsInCs';
 
 
 [Re_c, tvec] = gcpForCamExtrinsic(cameraMatrix,objectPointsInCs,imagePoints);

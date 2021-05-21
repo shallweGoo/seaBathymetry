@@ -6,9 +6,9 @@ N = 500;
 n = 0:N-1;
 t = n/Fs;
 % noise = sin(2*pi*0.7*t);
-% x = sin(2*pi*0.2*t)+10*rand(1,N);
+x = sin(2*pi*t-pi/4)+rand(1,N);
 % x =20*rand(1,N);
-% y = sin(2*pi*1.2*t)+rand(1,N);%如果是周期函数，平移时间不会超过T/2，y晚于x
+y = sin(2*pi*t);%如果是周期函数，平移时间不会超过T/2，y晚于x
 % y2 = rand(1,N);
 % y = zeros(2,N);
 % y(1,:) = y1;
@@ -16,7 +16,7 @@ t = n/Fs;
 % 
 % sum_xy = x;
 % [m,n] = correlationCalc(x,y,1/Fs)
-
+% corr(x',y','type','Pearson')
 %% 这一段为测试平方相干性和功率谱
 % [Cxy,F] = mscohere(x,y,hamming(100),80,100,Fs);
 % subplot(2,1,1);
@@ -32,6 +32,9 @@ t = n/Fs;
 % plot(F,mag);
 
 
+
+
+
 %% 这一段是测试去直流分量，查看数据效果，分别用了三种去直流方法继续测试，并在频谱图和功率谱上画出
 
    cr = 300; %choose row 即选定的行
@@ -41,7 +44,8 @@ t = n/Fs;
    x = row(cr,:);
 
    Fs = 2;
-   x1 = clrDc(x,1);
+   %去直流分量
+   x1 = clrDc(x,1); %detrend好像不太好
    x2 = clrDc(x,2);
    x3 = clrDc(x,3);
    
@@ -49,17 +53,18 @@ t = n/Fs;
 %    fftAnalysis(x2,Fs);
 %    fftAnalysis(x3,Fs);
    
-   figure(1);
+%    figure;
+%    plot(x,'k');
+%    hold on;
 %    plot(x1,'r');
 %    hold on;
 %    plot(x2,'g');
 %    hold on;
 %    plot(x3,'b');
-   plot(afterFilt(cr,:),'b');
-   hold on;
-   plot(x,'k');
+%    hold on;
+%    plot(afterFilt(cr,:),'b*');
    
-    [Pxy,F] = cpsd(x,x,[],[],[],Fs);
+    [Pxy,F] = cpsd(x,x,[],[],[],Fs); %未除去直流分量以前的频率分量
     mag = abs(Pxy);
     
     [Pxy1,F1] = cpsd(x1,x1,[],[],[],Fs);
@@ -74,8 +79,8 @@ t = n/Fs;
     
     [Pxy4,F4] = cpsd(afterFilt(cr,:),afterFilt(cr,:),[],[],[],Fs);
     mag4 = abs(Pxy4);
-    figure(2);
     
+    figure;
     plot(F1,mag1,'r')
     hold on;
     plot(F2,mag2,'g');
@@ -94,9 +99,6 @@ t = n/Fs;
 
 % figure(1);
 % plot(timelag,a);
-
-
-
 
 
 
@@ -274,9 +276,6 @@ plot(F,mag);
    %%
    
    
-   
-   
-   
    figure(1);
    plot(t_cor_20cm,'k');
    hold on;
@@ -290,6 +289,23 @@ plot(F,mag);
    
    
    
+   
+   
+   
+   %%
+   s1 = picInfo.afterFilter{200,100};
+   s2 = picInfo.afterFilter{195,100};
+   len = 1:501;
+   plot(len,s1,'r',len,s2,'b');
+   
+   
+   
+   %%
+    for j = i:-1:i-PredictRange+1 %从本身开始这个像素开始计算相似程度
+    %         for j = i:-1:1 %从本身开始这个像素开始计算相似程度  
+            cor_val(i-j+1) = corr(timeStack_org(i,:)',timeStack_fixedTime(j,:)','type','Pearson'); %用这个信号计算互相关
+    end
+    plot(cor_val);
    
    
    

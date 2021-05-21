@@ -1,79 +1,40 @@
 %该函数为深度反演的主函数
 dbstop if all error  % 方便调试
+addpath('./timeStackOperation/');
+foldPath = "F:\workSpace\matlabWork\corNeed_imgResult\";
+fs = 2; %采样频率为2Hz
+%% 获取处理好的时间序列数据
+
+    %1、图片信息
+    picInfo.idx = 17;
+    picInfo.file_path =  foldPath+"\变换后图片"+picInfo.idx+"\";% 图像文件夹路径
+    picInfo.allPic = string(ls(picInfo.file_path));%直接包括所有的文件名
+    picInfo.allPic = picInfo.allPic(3:end);
+    picInfo.picnum = size(picInfo.allPic,1);%统计所有照片的数量
+
+    src=imread(picInfo.file_path+picInfo.allPic(1));
+    [picInfo.row,picInfo.col] = size(src);
+    clear src;
+    picInfo.timeInterval = 1/fs; %单位s 
+    picInfo.pixel2Distance = 0.5; %单位米
+    load(foldPath+"\变换后图片"+picInfo.idx+"相关处理\最终元胞数据\data_cell_det&nor.mat");
+    picInfo.afterFilter = usefulData;
+
+    
+    %2、世界信息
+    world.crossShoreRange = 300;
+    world.longShoreRange = 100;
+    world.x = 0:picInfo.pixel2Distance:world.longShoreRange;
+    world.y = 0:picInfo.pixel2Distance:world.crossShoreRange;
 
 
-% addpath('./filter/'); 
-% addpath('./selectPic/');
-% addpath('./imagProcess/');
-addpath('./timeStackOperation/')
-%% 先进行图片基本信息的录入
-%  picInfo.file_path =  "F:\workSpace\matlabWork\dispersion\selectPic\afterPer\双月湾第二组变换后\变换后图片\";% 图像文件夹路径
-% 
-%  picInfo.allPic = string(ls(picInfo.file_path));%直接包括所有的文件名
-%  picInfo.allPic = picInfo.allPic(3:end);
-%  
-%  picInfo.picnum = round(size(picInfo.allPic,1));%统计所有照片的数量
-%  
-%  src=imread(picInfo.file_path+picInfo.allPic(1));
-%  [picInfo.row,picInfo.col] = size(src);
-%  
-%  picInfo.timeInterval = 0.5; %单位s 
-%  picInfo.pixel2Distance = 0.5; %单位米
-%  
-% %进行频率估计所需要的结构体
-% cpsdVar.windowLen = round(picInfo.picnum/4);
-% cpsdVar.winOverLap = round(cpsdVar.windowLen * 0.8);
-% cpsdVar.f = 400;%点数为f/2
-% cpsdVar.Fs = 2;%采样频率，单位hz
-% cpsdVar.waveLow  = 0.05; % swell的频率范围
-% cpsdVar.waveHigh = 0.2;  % 
+    %3、提供计算交叉谱所需要的信息
+    cpsdVar.waveLow  = 0.05; %计算代表频率所要用的交叉谱频率范围
+    cpsdVar.waveHigh = 0.25;
+    cpsdVar.Fs = fs;%采样频率，单位hz
 
-%% main 获取每个像素点的时间序列
-
-% Time = zeros(1,picInfo.picnum);
-% for i = 1:picInfo.picnum
-%     Time(i)=i*picInfo.timeInterval;
-% end
-
-%载入去除线性趋势归一化的数据
-% data = load('DetrendAndNormalize.mat');
-% DetrendAndNormalize = data.DetrendAndNormalize;
-
-
-%% 图片预处理（带通滤波）（在我理解来是对每个像素点的时间序列进行滤波）,保存下来了建议直接load
-% PixelSeries = readData(picInfo);
-% afterFilter = cell(picInfo.row,picInfo.col);
-% myFilter = load('testLp2_0.5_0.6.mat');
-% for i = 1 : picInfo.col
-%     for j = 1 : picInfo.row
-%     beforeFilterData = createSignal(PixelSeries,j,i);
-%     beforeFilterData = [beforeFilterData,zeros(1,101)];
-%     afterFilter{j,i} = filter(myFilter.test,1,beforeFilterData); 
-%     afterFilter{j,i} = afterFilter{j,i}(52:picInfo.picnum+51);
-%     afterFilter{j,i} = detrend(afterFilter{j,i}/255); %先归一化再去除趋势
-%     afterFilter{j,i} = afterFilter{j,i}(1:1000); %发现取1000个点是比较好的
-%     end
-% end
-
-% data = load("afterFilter.mat");
-% picInfo.afterFilter = data.afterFilter;
-
-%% 这一段程序放在了getFullPixelSeries中，在main里直接load（DetrendAndNormalize.mat）即可
-% % 不滤波直接计算
-% % 没有滤波的元胞
-% DetrendAndNormalize = cell(height,width);
-% PixelSeries = readData(file_path,allPic,picnum,height,width);  %读取时间序列的函数可能存在可以改进的地方，利用列向量整列计算
-% for i = 1 : width
-%     for j = 1 : height
-%     DetrendAndNormalize{j,i} = createSignal(PixelSeries,j,i);
-%     DetrendAndNormalize{j,i} = detrend(DetrendAndNormalize{j,i})/255;
-%     end
-% end
-
-
-% data = load("afterFilter1_1000.mat");
-% picInfo.afterFilter = data.afterFilter;
-
+    clear usefulData;
+   
 %% 进行估计
 range = zeros(picInfo.row,picInfo.col);
 point.speed = zeros(picInfo.row,picInfo.col);
@@ -81,13 +42,12 @@ point.f = zeros(picInfo.row,picInfo.col);
 
 %  从离岸最远的像素点进行估计,顺便进行深度反演
 seaDepth = NaN(picInfo.row,picInfo.col);
-fixed_time = 3;
+fixed_time = 3; %固定时间为3s
 
 %设置使用的方法
 %1为中点取速度法
 %2为固定时间为3s,即fixed_time = 3时所成为的点;
-mode = 1;
-
+mode = 2;
 
 % 固定波长
 % for i = 1:picInfo.col %按行来估计
@@ -108,6 +68,15 @@ mode = 1;
 %     end
 %     runtime = cputime-t1;
 % end
+
+
+
+%% 傅里叶变换找出最相关的信号和频率
+
+
+
+
+
 
 
 
@@ -176,7 +145,7 @@ end
 %% 可以进行线性插值，补上值为nan的,用中点方法计算时就会出现很多空
 
 if mode == 1 
-    %% 
+    %
     interpolation.seaDepth = seaDepth;
     for i = 1:picInfo.col
         interpolation.total_x = 1:picInfo.row;

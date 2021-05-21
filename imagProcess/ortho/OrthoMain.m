@@ -1,7 +1,7 @@
 %该程序为透视变换的主程序
-addpath('E:/Program Files (x86)/mexopencv-master');
-addpath('E:/Program Files (x86)/mexopencv-master/opencv_contrib');
-addpath('F:/workSpace/matlabWork/dispersion/imagProcess/ortho/coordination transformation')
+% addpath('E:/Program Files (x86)/mexopencv-master');
+% addpath('E:/Program Files (x86)/mexopencv-master/opencv_contrib');
+% addpath('F:/workSpace/matlabWork/dispersion/imagProcess/ortho/coordination transformation')
 
 %% gcp的真实世界坐标（以自己建的坐标系）和像素坐标
 gcp_llh =[[22.5948224,114.8764800,7.41];
@@ -13,7 +13,7 @@ gcp_llh =[[22.5948224,114.8764800,7.41];
 % o_llh = [22.5957696,114.8766464,5.23];
 o_llh = [22.5956768,114.8767360,5.09];
 
-objectPoints =gcpllh2NED(o_llh,gcp_llh);
+objectPoints = gcpllh2NED(o_llh,gcp_llh);
 objectPoints = objectPoints';
 imagePoints = [[258,389];[287,725];[814,1015];[1286,866];[1696,710]];
 % % 相机畸变参数和内参（4000*1250）

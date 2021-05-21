@@ -23,6 +23,8 @@ function downSampleFromVideo(step)
     videoPath = step.videoPath;
     savePath = step.savePath;
     
+    
+    
     if(isfield(step,'fs')) 
         fs = step.fs;
     else
@@ -89,8 +91,8 @@ function downSampleFromVideo(step)
 
             % 保存图片
 
-            imwrite(rgb2gray(I),[savePath SaveName '_' num2str(ts) '.tif']);%可以考虑放到最后去灰度化
-
+             imwrite(rgb2gray(I),[savePath SaveName '_' num2str(ts) '.tif']);%可以考虑放到最后去灰度化
+%            imwrite(I,[savePath SaveName '_' num2str(ts) '.tif']);
             % 显示进度，非常叼的机制
             disp([ num2str( k./numFrames*100) '% Extraction Complete'])
 
@@ -152,6 +154,7 @@ function downSampleFromVideo(step)
 
         end
     end
+    
     %显示转换完成的信息
     disp(' ');
     disp(['原始视频帧率: ' num2str(v.FrameRate) ' fps'])

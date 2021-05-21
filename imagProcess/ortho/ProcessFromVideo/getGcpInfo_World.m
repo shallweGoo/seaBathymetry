@@ -37,6 +37,7 @@ function gcpInfo_world = getGcpInfo_World(step2)
 
 %     uav_pos_world = Rotate_ned2new*uav_pos_ned;
     
+    disp(['uav ned pos ' num2str(uav_pos_world)]);
     
     if isempty(savePath) ~= 1
         saveName = 'gcpInfo';

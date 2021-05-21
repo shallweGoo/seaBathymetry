@@ -1,4 +1,4 @@
-function matchGcp(step3,mode)
+function matchGcp(step3)
 %calcRotateMatrix 根据第一帧的控制点外参，采用的是非线性拟合的方式，输出GCP的信息
 %实际上可以通过solvePnP问题来解决
 % mode = 1,nlinfit
@@ -9,7 +9,7 @@ function matchGcp(step3,mode)
     gcpInfo_UV_path = step3.gcpInfo_UV_path;
     intrinsic_path = step3.intrinsic_path;
     savePath = step3.savePath;
-    
+    mode = step3.mode;
 
     %相机的世界坐标
     uav_pos_world = nan(1,3);
@@ -24,8 +24,6 @@ function matchGcp(step3,mode)
     gcpInfo_world = tmp2.gcpInfo_world;
     uav_pos_world = tmp2.uav_pos_world;
     
-    
-    
     clear tmp1;
     clear tmp2;
     
@@ -35,14 +33,10 @@ function matchGcp(step3,mode)
     intrinsics = tmp3.intrinsics;
     iopath = intrinsic_path;
     
-    
-    
+
     %gcp信息存放路径
     gcpUvdPath = gcpInfo_UV_path;
     gcpXyzPath = gcpInfo_world_path;
-    
-
-    
     
     saveName = 'RotateInfo'; %存放的是外参和内参信息，统一称为旋转信息
     
@@ -100,23 +94,26 @@ function matchGcp(step3,mode)
     
 if mode == 1
 
-    extrinsicsInitialGuess= [50  50  -100 deg2rad(-35.6) deg2rad(0) deg2rad(-122.8)];
+%御
+%     extrinsicsInitialGuess= [50  50  -100 deg2rad(-35.6) deg2rad(0) deg2rad(-122.8)];
     
+
+%精灵4
+    extrinsicsInitialGuess= step3.extrinsicsInitialGuess;
+
     %  要去求解的参数
-    extrinsicsKnownsFlag= [0 0 0 0 0 0];  % [ x y z roll yaw pitch]
+    extrinsicsKnownsFlag= step3.extrinsicsKnownsFlag;  % [ x y z roll yaw pitch]
     
     %用一个非线性优化去求解外参矩阵
     [extrinsics,extrinsicsError]= extrinsicsSolver(extrinsicsInitialGuess,extrinsicsKnownsFlag,intrinsics,UVd,xyz);
 
-    extrinsicsInitialGuess= [50  50  -100 deg2rad(-35.6) deg2rad(0) deg2rad(-122.8)];
+%     extrinsicsInitialGuess= [50  50  -100 deg2rad(-35.6) deg2rad(0) deg2rad(-122.8)];
+    extrinsicsInitialGuess = step3.extrinsicsInitialGuess;
     
     
     % Transform xyz World Coordinates to Distorted Image Coordinates
+    
     [UVdReproj ] = xyz2DistUV(intrinsics,extrinsics,xyzCheck);
-    
-    
-
-
     
     
     % 展示xyz(相机在世界坐标系下的坐标)，和三个方位角信息

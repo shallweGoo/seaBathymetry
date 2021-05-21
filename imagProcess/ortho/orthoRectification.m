@@ -29,6 +29,7 @@ dst.col = x_max - x_min + 1; %目标图像所具有的列数
 if(dst.row > 1e9 || dst.col > 1e9)
     error('cannot do OrthoRectification because of dst_row or/and dst_col was out of range');
 end
+
 dst.pixel = zeros(dst.row,dst.col); %目标图像的大小
 
 % 从目标图像变换过去
