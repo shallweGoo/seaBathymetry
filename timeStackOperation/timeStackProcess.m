@@ -3,9 +3,8 @@
 clear 
 clc
 foldPath = "F:\workSpace\matlabWork\corNeed_imgResult\";
-
 %% 在指定路径创建文件夹
-dir_ind = 17;
+dir_ind = 14;
 dir_ind = num2str(dir_ind);
 fileInfo.file_dir.dir_name = foldPath + "变换后图片"+dir_ind+"相关处理\";
 fileInfo.file_dir.res_dir = ["变换后图片"+dir_ind+"时间堆栈","变换后图片"+dir_ind+"带通滤波","变换后图片"+dir_ind+"数据截断","最终元胞数据","最终结果"];
@@ -51,6 +50,7 @@ fileInfo.partition.file_name = string(ls(fileInfo.partition.file_path));
 fileInfo.partition.file_name = fileInfo.partition.file_name(3:end);
 fileInfo.partition.file_num = length(fileInfo.partition.file_name);
 
+% 滤波之后信号开头和结尾处可能会失真，所以不要那段了，但是不一定要用
 fileInfo.partition.begin = 30; %总共300s,点是600点，截取一下长度
 fileInfo.partition.end = 570;
 
@@ -62,9 +62,10 @@ bpFilterForTimeStack(fileInfo); %在里面加入了截取信号的部分
 fileInfo.create_cell.file_path = fileInfo.file_dir.dir_name+fileInfo.file_dir.res_dir(4)+"\";
 fileInfo.create_cell.file_name = string(ls(fileInfo.create_cell.file_path));
 fileInfo.create_cell.file_name = fileInfo.create_cell.file_name(3:end);
-fileInfo.create_cell.file_num =  length(fileInfo.create_cell.file_name);
+fileInfo.create_cell.file_num = length(fileInfo.create_cell.file_name);
 
 %% 调用getSignalFromTimeStack.m
-getSignalFromTimeStack(fileInfo);
+getSignalFromTimeStack(fileInfo);%在这一部才将数据归一化，生成一个元胞数组
+
 
 

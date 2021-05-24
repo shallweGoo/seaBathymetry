@@ -6,16 +6,17 @@ N = 500;
 n = 0:N-1;
 t = n/Fs;
 % noise = sin(2*pi*0.7*t);
-x = sin(2*pi*t-pi/4)+rand(1,N);
+x = sin(2*pi*0.2*(t-1));
 % x =20*rand(1,N);
-y = sin(2*pi*t);%如果是周期函数，平移时间不会超过T/2，y晚于x
+y = sin(2*pi*0.2*t);%如果是周期函数，平移时间不会超过T/2，y晚于x
 % y2 = rand(1,N);
 % y = zeros(2,N);
 % y(1,:) = y1;
 % y(2,:) = y2; 
 % 
 % sum_xy = x;
-% [m,n] = correlationCalc(x,y,1/Fs)
+ %先发生的x,例如x = sin(2*pi*0.2*(t+1))，y =sin(2*pi*0.2*t)，此时结果为负
+[m,n] = correlationCalc(x,y,1/Fs)
 % corr(x',y','type','Pearson')
 %% 这一段为测试平方相干性和功率谱
 % [Cxy,F] = mscohere(x,y,hamming(100),80,100,Fs);

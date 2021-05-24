@@ -1,3 +1,6 @@
+clear;
+
+%% 
 Fs = 2;
 N = 600;
 n = 0:N-1;
@@ -7,23 +10,24 @@ df = 1/(N*dt);
 f = 0: df: 1/(2*dt)-df;
 fB = [1/18:1/50:1/4];
 dfB = fB(2)-fB(1);
-nKeep = 7;
+nKeep = 4;
 %%%%%%%%%%%读入文件设置%%%%%%%%
 dir_ind = num2str(14);
+col_num = num2str(100);
 
-timestack_foldPath = "F:\workSpace\matlabWork\corNeed_imgResult\"+"变换后图片"+dir_ind+"相关处理\"+"变换后图片"+dir_ind+"时间堆栈\";
-
-col_num = num2str(50);
-
+%timestack_foldPath = "F:\workSpace\matlabWork\corNeed_imgResult\"+"变换后图片"+dir_ind+"相关处理\"+"变换后图片"+dir_ind+"时间堆栈\";
+timestack_foldPath = "F:\workSpace\matlabWork\corNeed_imgResult\"+"变换后图片"+dir_ind+"相关处理\"+"变换后图片"+dir_ind+"带通滤波\";
 real_file = timestack_foldPath + "col" + col_num;
-
 load(real_file);
 
+% x1 = detrend(double(row_timestack(400,:))); 
+% x2 = detrend(double(row_timestack(380,:)));
+
+x1 = detrend(double(afterFilt(400,:))); 
+x2 = detrend(double(afterFilt(380,:)));
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-x1 = detrend(double(row_timestack(300,:))); 
-x2 = detrend(double(row_timestack(200,:)));
-
 
 
 % y1 = detrend(smooth(x1,10));
@@ -68,38 +72,54 @@ end
 coh2 = squeeze(sum(sum(abs(C)))/2);
 
 [~, coh2Sortid] = sort(coh2, 1, 'descend');  % sort by coh2 按照行从大到小排列,coh2Sortid储存了原数组中数值从大到小的索引，CEOF的原理吧
-fs = fB(coh2Sortid(1:nKeep));         % keep only the nKeep most coherent，选nKeep个最相干的频率
+f_coh = fB(coh2Sortid(1:nKeep));         % keep only the nKeep most coherent，选nKeep个最相干的频率
 C = C(:,:,coh2Sortid(1:nKeep));       % ditto 同上，选择了最相关的一些频率
 
 
+%用fs反算f_n
+f_n = (round(f_coh*N/Fs)+1);
+
+
 filter_G = zeros(size(init_G,1),size(init_G,2));
+%过滤无关信号，都取成0;
 for i = 1:nKeep
-    filter_G = coh2Sortid(1:nKeep);
+    
+    filter_G(f_n,:) = init_G(f_n,:);
+    filter_G(N-f_n+2,:)= init_G(N-f_n+2,:);
 end
 
 f_signal = ifft(filter_G);
 f_x1 = f_signal(:,1);
 f_x2 = f_signal(:,2);
-plot(t,f_x1,'r',t,f_x2,'b')
+figure(30);%滤波之后的信号
+plot(t(1:100),f_x1(1:100),'r',t(1:100),f_x2(1:100),'b')
+
+%% 计算互相关
+
+[max_cor,delta_t] = correlationCalc(f_x1,f_x2,1/Fs)
+
+%% 计算功率谱
+
+f = getRepresentativeFrequency(f_x1,f_x2,f_coh,Fs)
 
 
 
+%% 测试fft变换出来的信号消除特定频率
+
+%  fs_test = 2;
+%  n = 0:1000-1;
+%  t = n/fs_test;
+%  a = sin(2*pi*0.004*t)+2*sin(2*pi*0.2*t);
+%  b = fft(a);
+%  figure(1);
+%  plot(abs(b));
+%  b(2) = 0;
+%  b(1000) = 0;
+%  figure(2);
+%  plot(abs(b));
+%  f_a = ifft(b);
+%  fftAnalysis(f_a,fs_test);
+%  fftAnalysis(a,fs_test);
 
 
-%% 
- fs_test = 2;
- n = 0:1000-1;
- t = n/fs_test;
- a = sin(2*pi*0.1*t)+2*sin(2*pi*0.2*t);
- b = fft(a);
- figure;
- plot(abs(b));
- b(101) = 0;
- b(901) = 0;
- figure;
- plot(abs(b));
- f_a = ifft(b);
- fftAnalysis(f_a,fs_test);
- fftAnalysis(a,fs_test);
- 
 

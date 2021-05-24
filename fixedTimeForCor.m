@@ -9,12 +9,11 @@ function res = fixedTimeForCor(timeStack_org,timeStack_fixedTime)
     cor_val =NaN(1,PredictRange);
     res = NaN(row,PredictRange);
     for i = row:-1:noNeedDistance
-        for j = i:-1:i-PredictRange+1 %从本身开始这个像素开始计算相似程度
-%         for j = i:-1:1 %从本身开始这个像素开始计算相似程度  
+        for j = i-1:-1:i-PredictRange+1 %从本身开始这个像素开始计算相似程度
             cor_val(i-j+1) = corr(timeStack_org(i,:)',timeStack_fixedTime(j,:)','type','Pearson'); %用这个信号计算互相关
         end
-            plot(cor_val);
-            res(i,:) = cor_val;
+        plot(cor_val);
+        res(i,:) = cor_val;
     end
 
 end

@@ -2,85 +2,70 @@
 dbstop if all error  % 方便调试
 addpath('./timeStackOperation/');
 foldPath = "F:\workSpace\matlabWork\corNeed_imgResult\";
-fs = 2; %采样频率为2Hz
+%% 采样参数
+prepare.fs = 2; %采样频率为2Hz
+prepare.pixelResolution = 0.5; %像素分辨率为0.5m
 %% 获取处理好的时间序列数据
 
-    %1、图片信息
-    picInfo.idx = 17;
-    picInfo.file_path =  foldPath+"\变换后图片"+picInfo.idx+"\";% 图像文件夹路径
-    picInfo.allPic = string(ls(picInfo.file_path));%直接包括所有的文件名
-    picInfo.allPic = picInfo.allPic(3:end);
-    picInfo.picnum = size(picInfo.allPic,1);%统计所有照片的数量
+%1、图片信息
+picInfo.idx = 14;
+picInfo.file_path =  foldPath+"\变换后图片"+picInfo.idx+"\";% 图像文件夹路径
+picInfo.allPic = string(ls(picInfo.file_path));%直接包括所有的文件名
+picInfo.allPic = picInfo.allPic(3:end);
+picInfo.picnum = size(picInfo.allPic,1);%统计所有照片的数量
 
-    src=imread(picInfo.file_path+picInfo.allPic(1));
-    [picInfo.row,picInfo.col] = size(src);
-    clear src;
-    picInfo.timeInterval = 1/fs; %单位s 
-    picInfo.pixel2Distance = 0.5; %单位米
-    load(foldPath+"\变换后图片"+picInfo.idx+"相关处理\最终元胞数据\data_cell_det&nor.mat");
-    picInfo.afterFilter = usefulData;
+src=imread(picInfo.file_path+picInfo.allPic(1));
+[picInfo.row,picInfo.col] = size(src);
+clear src;
+picInfo.timeInterval = 1/prepare.fs; %单位s 
+picInfo.pixelResolution = prepare.pixelResolution; %单位米
+load(foldPath+"\变换后图片"+picInfo.idx+"相关处理\最终元胞数据\data_cell_det&nor.mat");
+picInfo.afterFilter = usefulData;
 
-    
-    %2、世界信息
-    world.crossShoreRange = 300;
-    world.longShoreRange = 100;
-    world.x = 0:picInfo.pixel2Distance:world.longShoreRange;
-    world.y = 0:picInfo.pixel2Distance:world.crossShoreRange;
+prepare.N = length(usefulData{1}); % 有多少个采样点
+prepare.t = 1/prepare.fs*(0:N-1); % 时间
 
+%2、世界信息
+world.crossShoreRange = (picInfo.row-1)*prepare.pixelResolution;
+world.longShoreRange = (picInfo.col-1)*prepare.pixelResolution;
+world.x = 0:prepare.pixelResolution:world.longShoreRange;
+world.y = 0:prepare.pixelResolution:world.crossShoreRange;
 
-    %3、提供计算交叉谱所需要的信息
-    cpsdVar.waveLow  = 0.05; %计算代表频率所要用的交叉谱频率范围
-    cpsdVar.waveHigh = 0.25;
-    cpsdVar.Fs = fs;%采样频率，单位hz
+%3、提供计算交叉谱所需要的信息
+cpsdVar.waveLow  = 0.05; %计算代表频率所要用的交叉谱频率范围
+cpsdVar.waveHigh = 0.25;
+cpsdVar.Fs = fs;%采样频率，单位hz
 
-    clear usefulData;
-   
+clear usefulData;
+
+N = prepare.N; % 采样点个数
+n = 0:N-1; % 采样点（向量）
+t = prepare.t; % 时间
+
 %% 进行估计
 range = zeros(picInfo.row,picInfo.col);
 point.speed = zeros(picInfo.row,picInfo.col);
 point.f = zeros(picInfo.row,picInfo.col);
 
+
 %  从离岸最远的像素点进行估计,顺便进行深度反演
 seaDepth = NaN(picInfo.row,picInfo.col);
-fixed_time = 3; %固定时间为3s
+fixed_time = 3; %固定时间为3s，论文得到的最适合时间
 
 %设置使用的方法
 %1为中点取速度法
 %2为固定时间为3s,即fixed_time = 3时所成为的点;
 mode = 2;
 
-% 固定波长
-% for i = 1:picInfo.col %按行来估计
-%     t1 = cputime;
-%     for j = picInfo.row:-1:1 %从离岸最远的地方向向岸方向进行估计
-%         posReference = getSignalAndSetInfo(picInfo,j,i);
-% %         [range,speedTemp,f_Temp] = selectRangeAndMidSpeedAndFrequence(DetrendAndNormalize,posReference,timeInterval,pixel2Distance,cpsdVar);
-%         [~,speedTemp,f_Temp] = selectRangeAndMidSpeedAndFrequence(picInfo,posReference,cpsdVar);
-%         mid = j - 20;%此条语句为固定波长所得，但是测出最大互相关还没有结果
-%         %         mid = round((j+range)/2);
-%         if mid >= 1
-%             point.speed(mid,i) = speedTemp(1);
-%             point.f(mid,i) = f_Temp;
-%             seaDepth(mid,i) = dispersionCalc(f_Temp,speedTemp(1));
-%         else
-%             break;
-%         end
-%     end
-%     runtime = cputime-t1;
-% end
-
-
 
 %% 傅里叶变换找出最相关的信号和频率
+    
+    
 
 
 
 
-
-
-
-
-
+%%
 % 对互相关进行计算（改进版，尝试每次用一列数据加快运算速度），目前失败了
 % 利用一个数组来存放每一行的索引值
 if mode == 1

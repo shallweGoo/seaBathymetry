@@ -33,7 +33,8 @@ end
 % org = imread(org_path+org_name(1));
 usefulData = cell(fileInfo.org_imag.pic_row,fileInfo.org_imag.pic_col);
 
-temp = fileInfo.partition.file_path; %减少开销
+% temp = fileInfo.partition.file_path; %减少开销
+temp = fileInfo.bp_filter.file_path;
 switch pattern 
     case 0
     % 3维数组版本数据，之后需要reshape
@@ -52,10 +53,11 @@ switch pattern
             end
         end
     case 2
-    % 元胞数组版本归一化版本，需要双循环，索引方便（还是感觉元胞数组这个数据结构方便使用）
+    % 元胞数组版本归一化版本，需要双循环，索引方便（还是感觉元胞数组这个数据结构方便使用）,
         for i = 1:fileInfo.time_stack.file_num
             mat_file = load(temp+"col"+num2str(i)+".mat"); %数据的mat格式文件
-            temp_mat = mat_file.part;
+%             temp_mat = mat_file.part;
+            temp_mat = mat_file.afterFilt;
             for j= 1:size(temp_mat,1)
                usefulData{j,i} = temp_mat(j,:)./max(abs(temp_mat(j,:)));
             end
@@ -63,6 +65,6 @@ switch pattern
 end
 
 target_dir = fileInfo.create_cell.file_path;
-save(target_dir+"data_cell_det&nor.mat","usefulData");
+save(target_dir+"data_cell_det&nor.mat","usefulData"); %得到去直流分量（0频）并归一化的数据
 
 end
