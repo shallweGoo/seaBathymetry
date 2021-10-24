@@ -1,79 +1,68 @@
 %该函数为深度反演的主函数
 dbstop if all error  % 方便调试
+
 addpath('./timeStackOperation/');
-foldPath = "F:\workSpace\matlabWork\corNeed_imgResult\";
-%% 采样参数
-prepare.fs = 2; %采样频率为2Hz
-prepare.pixelResolution = 0.5; %像素分辨率为0.5m
+fold_path = "F:/workSpace/matlabWork/corNeed_imgResult/";
+station_str = 'phantom4';
+
+% 执行参数注入
+eval(station_str);
+
 %% 获取处理好的时间序列数据
 
-%1、图片信息
-picInfo.idx = 14;
-picInfo.file_path =  foldPath+"\变换后图片"+picInfo.idx+"\";% 图像文件夹路径
-picInfo.allPic = string(ls(picInfo.file_path));%直接包括所有的文件名
-picInfo.allPic = picInfo.allPic(3:end);
-picInfo.picnum = size(picInfo.allPic,1);%统计所有照片的数量
-
-src=imread(picInfo.file_path+picInfo.allPic(1));
-[picInfo.row,picInfo.col] = size(src);
-clear src;
-picInfo.timeInterval = 1/prepare.fs; %单位s 
-picInfo.pixelResolution = prepare.pixelResolution; %单位米
-load(foldPath+"\变换后图片"+picInfo.idx+"相关处理\最终元胞数据\data_cell_det&nor.mat");
-picInfo.afterFilter = usefulData;
-
-prepare.N = length(usefulData{1}); % 有多少个采样点
-prepare.t = 1/prepare.fs*(0:N-1); % 时间
-
-%2、世界信息
-world.crossShoreRange = (picInfo.row-1)*prepare.pixelResolution;
-world.longShoreRange = (picInfo.col-1)*prepare.pixelResolution;
-world.x = 0:prepare.pixelResolution:world.longShoreRange;
-world.y = 0:prepare.pixelResolution:world.crossShoreRange;
-
-%3、提供计算交叉谱所需要的信息
+% 1、图片信息
+pic_info = loadTimeStack(18, fold_path, params);
+% 2、世界信息
+world_info = getWorldInfo(params, pic_info);
+% 3、提供计算交叉谱所需要的信息
 cpsdVar.waveLow  = 0.05; %计算代表频率所要用的交叉谱频率范围
 cpsdVar.waveHigh = 0.25;
-cpsdVar.Fs = fs;%采样频率，单位hz
+cpsdVar.Fs = params.fs;%采样频率，单位hz
 
-clear usefulData;
+% prepare里面的先验参数
+% N = prepare.N; % 采样点个数
+% n = 0:N-1; % 采样点（向量）
+% t = prepare.t; % 时间
 
-N = prepare.N; % 采样点个数
-n = 0:N-1; % 采样点（向量）
-t = prepare.t; % 时间
+
 
 %% 进行估计
-range = zeros(picInfo.row,picInfo.col);
-point.speed = zeros(picInfo.row,picInfo.col);
-point.f = zeros(picInfo.row,picInfo.col);
-
+range = zeros(pic_info.row, pic_info.col);
+point.speed = zeros(pic_info.row, pic_info.col);
+point.f = zeros(pic_info.row, pic_info.col);
 
 %  从离岸最远的像素点进行估计,顺便进行深度反演
-seaDepth = NaN(picInfo.row,picInfo.col);
+seaDepth = NaN(pic_info.row, pic_info.col);
 fixed_time = 3; %固定时间为3s，论文得到的最适合时间
 
 %设置使用的方法
-%1为中点取速度法
-%2为固定时间为3s,即fixed_time = 3时所成为的点;
-mode = 2;
+%1为中点取速度法（UAV-based mapping of nearshore bathymetry over broad areas）
+%2为固定时间为3s
+mode = 1;
 
 
 %% 傅里叶变换找出最相关的信号和频率
+    %1.确定范围：找出每个点对应最相关的点，再这个点的范围内进行估计
+    pic_info.waveLengthInfo = findWaveLength(pic_info);
+    pic_info.dist = 2; %在cross shore方向上隔多少米估计一次
     
+    %2、利用fft分析方法确定出一些主频和不相关的分量，学习cBathy，在一个区域内进行fft互功率谱分析，筛选相关频率
     
-
-
 
 
 %%
 % 对互相关进行计算（改进版，尝试每次用一列数据加快运算速度），目前失败了
 % 利用一个数组来存放每一行的索引值
 if mode == 1
-    for i = 1:picInfo.col
+    % 没见过的全新版本
+%     seaDepth = correlationProcess(picInfo,cpsdVar);
+    
+    %旧版本
+    for i = 1:pic_info.col
     %     t1 = cputime;
-        [point.f(:,i),point.speed(:,i)] = corForFandC(picInfo,i,cpsdVar);
-        seaDepth(:,i) = calDepth(point.speed(:,i),point.f(:,i));
-        disp(['progress:' num2str(i/picInfo.col*100) '% completed']);
+        [point.f(:,i), point.speed(:,i)] = corForFC(pic_info, params, i, cpsdVar);
+        seaDepth(:,i) = calDepth(point.speed(:,i), point.f(:,i));
+        disp(['process:' num2str(i/pic_info.col*100) '% completed']);
     %     run_time = cputime-t1;
     end
     
@@ -82,16 +71,16 @@ if mode == 1
 
 % 分辨率改了要记得该参数
 elseif mode == 2
-    for i = 1:picInfo.col                  
-        [TimeStack1,TimeStack2] = getTimeStack(picInfo,i,fixed_time);
+    for i = 1:pic_info.col                  
+        [TimeStack1,TimeStack2] = getTimeStack(pic_info,i,fixed_time);
         res = fixedTimeForCor(TimeStack1,TimeStack2); 
         [~,idx] = max(res,[],2); %计算每行的相关系数
         idx(1:49) = nan;  %直接设置1：49为不估计的范围
-        point.speed(:,i) = idx*picInfo.pixel2Distance/fixed_time;
+        point.speed(:,i) = idx*pic_info.pixel2Distance/fixed_time;
 %         point.f(:,i) = fixedTimeCorForF(idx,i,picInfo,cpsdVar);
-        point.f(:,i) = fixedTimeCorForF_PS(i,picInfo,cpsdVar);
+        point.f(:,i) = fixedTimeCorForF_PS(i,pic_info,cpsdVar);
         seaDepth(:,i) = calDepth(point.speed(:,i),point.f(:,i));
-        disp(['progress:' num2str(i/picInfo.col*100) '% completed']);
+        disp(['progress:' num2str(i/pic_info.col*100) '% completed']);
     end
     % 加平滑处理的过程
     
@@ -120,10 +109,10 @@ end
 %% 进行plot
 
     
-    seaDepth(imag(seaDepth)~=0) = nan;
+    seaDepth(imag(seaDepth)~=0) = nan; % 虚部为0的直接搞成nan
     
     figure;   
-    plotBathy(world,seaDepth);
+    plotBathy(world_info,seaDepth);
 %     figure;
 %     plotBathy(world,mean_seaDepth);
     
@@ -132,8 +121,8 @@ end
 if mode == 1 
     %
     interpolation.seaDepth = seaDepth;
-    for i = 1:picInfo.col
-        interpolation.total_x = 1:picInfo.row;
+    for i = 1:pic_info.col
+        interpolation.total_x = 1:pic_info.row;
         interpolation.now_y  = interpolation.seaDepth(:,i)';
         interpolation.temp = interpolation.now_y;
         interpolation.insert_x = find(isnan(interpolation.now_y));
@@ -148,7 +137,7 @@ if mode == 1
         interpolation.seaDepth(:,i) = interpolation.temp;
     end
     figure;
-    plotBathy(world,interpolation.seaDepth);
+    plotBathy(world_info,interpolation.seaDepth);
     
 end
    

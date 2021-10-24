@@ -15,7 +15,7 @@ function bpFilterForTimeStack(fileInfo)
 
     filter_len = length(fileInfo.bp_filter.used_filter.bpfilter);
     bpfilter = fileInfo.bp_filter.used_filter.bpfilter;
-    afterFilt = zeros(fileInfo.org_imag.pic_row,fileInfo.org_imag.pic_num);
+    afterFilt = zeros(fileInfo.org_imag.pic_row, fileInfo.org_imag.pic_num);
     filter_half =  floor(filter_len/2);
     f_start = filter_half + 1;
     % 对每一个时间堆栈数据进行0.05-0.5hz的滤波,注意在设计滤波器时所选择的采样频率

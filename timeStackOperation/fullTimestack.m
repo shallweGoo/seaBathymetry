@@ -28,10 +28,10 @@ function fullTimestack(fileInfo)
 %     save("..\selectPic\afterPer\双月湾第二组变换后\变换后图片3相关处理\变换后图片3时间堆栈\"+"col"+num2str(i)+".mat","row_timestack");
 % end
 
-    target_dir = fileInfo.file_dir.dir_name+ fileInfo.file_dir.res_dir(1)+"\";
-    for i = 1:TimeStack.pic_num
+    target_dir = fileInfo.file_dir.dir_name + fileInfo.file_dir.res_dir(1) + "\";
+    for i = 1 : TimeStack.pic_num
         row_timestack = TimeStack.timestack{i};
-        save(target_dir+"col"+num2str(i)+".mat","row_timestack");
+        save(target_dir+"col"+num2str(i)+".mat", "row_timestack");
     end
 end
     

@@ -2,13 +2,13 @@
 % close all;
 
 Fs = 2;
-N = 500;
+N = 601;
 n = 0:N-1;
-t = n/Fs;
-% noise = sin(2*pi*0.7*t);
-x = sin(2*pi*0.2*(t-1));
+t = n / Fs;
+noise = sin(2*pi*0.7*t);
+x = 2*sin(2*pi*0.2*(t-1));
 % x =20*rand(1,N);
-y = sin(2*pi*0.2*t);%如果是周期函数，平移时间不会超过T/2，y晚于x
+y = 2*sin(2*pi*0.2*t);%如果是周期函数，平移时间不会超过T/2，y晚于x
 % y2 = rand(1,N);
 % y = zeros(2,N);
 % y(1,:) = y1;
@@ -16,8 +16,55 @@ y = sin(2*pi*0.2*t);%如果是周期函数，平移时间不会超过T/2，y晚于x
 % 
 % sum_xy = x;
  %先发生的x,例如x = sin(2*pi*0.2*(t+1))，y =sin(2*pi*0.2*t)，此时结果为负
-[m,n] = correlationCalc(x,y,1/Fs)
+% [m,n] = correlationCalc(x,y,1/Fs)
 % corr(x',y','type','Pearson')
+
+
+
+%% fft测试
+close all;
+Fs = 2;
+N = 600;
+n = 0:N-1;
+t = n / Fs;
+s1 = data_final(:, 29128);
+s2 = data_final(:, 29936);
+% s2 = row_timestack(300, :);
+G1 = fft(detrend(double(s1)))';
+df = Fs / N; 
+dt = 1 / Fs;
+f = [0 : df : 1 / (2 * dt) - df];
+figure
+plot(f, abs(G1(:, 1 : length(f))), 'b');
+title('滤波信号频域图');
+
+figure
+plot(t(1:100), s1(1:100)', 'r');
+hold on;
+plot(t(1:100), s2(1:100)', 'k');
+title('时域图');
+
+figure;
+s3 = data(:, 29128);
+G3 = fft(detrend(double(s3)))';
+figure
+plot(f, abs(G3(:, 1 : length(f))), 'b');
+title('原始信号频域图');
+
+
+%%
+% plot(1: N, s1, 'g');
+% plot(f, abs(G(:, 1 : length(f))), 'b');
+id1 = int64(0.7 / df) + 1;
+id2 = N + 2 - id1; 
+G(:, id1) = 0;
+G(:, id2) = 0;
+plot(1: N, abs(G(:)), 'r');
+s2 = ifft(G);
+figure(100)
+plot(1:N, s2, 'g');
+hold on;
+plot(1:N, x, 'r');
 %% 这一段为测试平方相干性和功率谱
 % [Cxy,F] = mscohere(x,y,hamming(100),80,100,Fs);
 % subplot(2,1,1);
@@ -38,10 +85,18 @@ y = sin(2*pi*0.2*t);%如果是周期函数，平移时间不会超过T/2，y晚于x
 
 %% 这一段是测试去直流分量，查看数据效果，分别用了三种去直流方法继续测试，并在频谱图和功率谱上画出
 
+    dir_ind = num2str(18);
+    col_num = num2str(100);
+
+    %timestack_foldPath = "F:\workSpace\matlabWork\corNeed_imgResult\"+"变换后图片"+dir_ind+"相关处理\"+"变换后图片"+dir_ind+"时间堆栈\";
+    timestack_foldPath = "F:\workSpace\matlabWork\corNeed_imgResult\"+"变换后图片"+dir_ind+"相关处理\"+"变换后图片"+dir_ind+"带通滤波\";
+    real_file = timestack_foldPath + "col" + col_num;
+    load(real_file);
+
    cr = 300; %choose row 即选定的行
 
-
-   row = double(row_timestack);
+    
+   row = double(afterFilt);
    x = row(cr,:);
 
    Fs = 2;
@@ -53,15 +108,15 @@ y = sin(2*pi*0.2*t);%如果是周期函数，平移时间不会超过T/2，y晚于x
 %    fftAnalysis(x1,Fs);
 %    fftAnalysis(x2,Fs);
 %    fftAnalysis(x3,Fs);
-   
-%    figure;
-%    plot(x,'k');
-%    hold on;
-%    plot(x1,'r');
-%    hold on;
-%    plot(x2,'g');
-%    hold on;
-%    plot(x3,'b');
+   clf;
+   figure(41);
+   plot(x,'k');
+   hold on;
+   plot(x1,'r');
+   hold on;
+   plot(x2,'g');
+   hold on;
+   plot(x3,'b');
 %    hold on;
 %    plot(afterFilt(cr,:),'b*');
    
@@ -81,7 +136,7 @@ y = sin(2*pi*0.2*t);%如果是周期函数，平移时间不会超过T/2，y晚于x
     [Pxy4,F4] = cpsd(afterFilt(cr,:),afterFilt(cr,:),[],[],[],Fs);
     mag4 = abs(Pxy4);
     
-    figure;
+    figure(42);
     plot(F1,mag1,'r')
     hold on;
     plot(F2,mag2,'g');
@@ -100,8 +155,6 @@ y = sin(2*pi*0.2*t);%如果是周期函数，平移时间不会超过T/2，y晚于x
 
 % figure(1);
 % plot(timelag,a);
-
-
 
 % 
 % figure(2);
@@ -289,10 +342,6 @@ plot(F,mag);
    legend("fixedtime\_20cm","fixedtime\_50cm");
    
    
-   
-   
-   
-   
    %%
    s1 = picInfo.afterFilter{200,100};
    s2 = picInfo.afterFilter{195,100};
@@ -308,5 +357,122 @@ plot(F,mag);
     end
     plot(cor_val);
    
-   
+   %% 画图测试
+   img_path = 'F:\workSpace\matlabWork\corNeed_imgResult\变换后图片18\';
+   time_stack = plotTimeStack(img_path, 100);
+%%
+
+close all;
+imagesc(time_stack);
+colormap(gray)
+
+
+
+set(gca,'XTick',[0:50:600]);
+set(gca,'YTick',[0:50:600]);
+set(gca,'yticklabel',[0:50:600] .* 0.5);
+
+line([0, 600], [254, 254],'Color','yellow','LineWidth', 2);
+line([0, 600], [298, 298],'Color','green','LineWidth', 2);
+line([0, 600], [300, 300],'Color','red','LineWidth', 2);
+
+set(gca,'YDir','reverse'); 
+ylim([100 400])
+xlabel('time(s)');
+ylabel('cross shore(m)');
+legend('134m','149m','150m');
+% 画对应的时域图和频域图
+
+Fs = 2;
+N = 600;
+n = 0:N-1;
+t = n / Fs;
+s1 = data_final(:, 15100); % 
+% xyz(14191, :);
+% s2 = data_final(:, 15201); % 140
+s2 = data_final(:, 15201);
+% xyz(15201, :);
+
+% s2 = row_timestack(300, :);
+G1 = fft(detrend(double(s1)))';
+df = Fs / N; 
+dt = 1 / Fs;
+f = [0 : df : 1 / (2 * dt) - df];
+figure
+plot(f, abs(G1(:, 1 : length(f))), 'b');
+
+title('滤波信号频域图');
+
+figure
+
+plot_args.point_end = 100;
+plot_args.point_begin = 1;
+point_begin = 1;
+plot(t(plot_args.point_begin : plot_args.point_end), s1(plot_args.point_begin :plot_args.point_end)', 'g');
+hold on;
+plot(t(plot_args.point_begin : plot_args.point_end), s2(plot_args.point_begin :plot_args.point_end)', 'r');
+% set(gca,'XTick',[0:10:100]);
+% set(gca,'YTick',[0:50:600]);
+
+xlabel('time(s)');
+ylabel('pixel intensity');
+legend('149m','150m');
+
+
+title('pixel intensity fluctuation trend');
+
+s3 = data(:, 29128);
+G3 = fft(detrend(double(s3)))';
+
+figure
+plot(f, abs(G3(:, 1 : length(f))), 'b');
+title('原始信号频域图');
+
+
+%% 计算互相关的图
+correlationCalc(s1, s2, 0.5);
+
+
+%% 画固定时间的互相关的图，先固定出一列timestack, 然后根据这个timestack点进行计算
+dbstop if all error  % 方便调试
+station_str = 'phantom4';
+% 执行参数注入
+eval(station_str);
+x = xyz(:, 1);
+y = xyz(:, 2);
+z = xyz(:, 3);
+longshore = 50;
+one_long_shore_id = find(y == longshore);
+cross_shore_x = x(one_long_shore_id, :);
+cor_num = 60;
+one_long_shore_data = data_final(:, one_long_shore_id);
+cor = nan(cor_num, max(cross_shore_x) - min(cross_shore_x) + 1);
+% for cross_shore = min(cross_shore_x) : params.dist : max(cross_shore_x)
+for cross_shore = 150 : 150
+    ref_id = find(cross_shore_x == cross_shore); % 找到所在的索引
+    ref = one_long_shore_data(:, ref_id);
+    data_set = one_long_shore_data(:, 1 : (ref_id - 1));
+%         range_id = getSuitRange1(ref, ref_id, data_set, params); % version1：获取互相关最大的那个值的索引，称为range_id，没有对信号进行筛选而得到的
+    [range_id, cor(:, cross_shore - min(cross_shore_x) + 1)] = getSuitRange2(ref(1: end - params.fix_time / params.dt), data_set(1 + params.fix_time / params.dt : end, :), params);
+    disp(['progress:' num2str((cross_shore - min(cross_shore_x)) / (max(cross_shore_x) - min(cross_shore_x))* 100) '% completed']);
+end
+
+%% 接上一个的画图
+plot_cor = flipud(cor);
+plot_cor(:, 1: 61) = 0;
+cmap = colormap( 'jet' );
+colormap( flipud( cmap ) );
+pcolor(plot_cor);
+shading flat;
+caxis([-1 1]); %设置深度的显示范围
+axis equal;
+axis tight;
+xlabel('cross shore (m)');
+ylabel('distance(m)');
+cor_val = colorbar('peer', gca);
+set(gca,'ydir','reverse');
+% set(gca,'yticklabel',[60: -1 : 1]);
+set(get(cor_val,'title'),'string', 'cor');
+
+
    

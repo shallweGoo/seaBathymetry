@@ -12,7 +12,7 @@ fB = [1/18:1/50:1/4];
 dfB = fB(2)-fB(1);
 nKeep = 4;
 %%%%%%%%%%%读入文件设置%%%%%%%%
-dir_ind = num2str(14);
+dir_ind = num2str(18);
 col_num = num2str(100);
 
 %timestack_foldPath = "F:\workSpace\matlabWork\corNeed_imgResult\"+"变换后图片"+dir_ind+"相关处理\"+"变换后图片"+dir_ind+"时间堆栈\";

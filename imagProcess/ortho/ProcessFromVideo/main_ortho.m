@@ -2,15 +2,16 @@
 % 该函数为从一个视频开始，直到一组正射图像的整个流程
 
 addpath(genpath('F:/workSpace/matlabWork/seaBathymetry/imagProcess/ortho/ProcessFromVideo/CoreFunctions/'));
-mat_savePath = 'F:/workSpace/matlabWork/imgResult/resMat/';
-ds_image_savePath =  'F:/workSpace/matlabWork/imgResult/downSample/';
+rootPath = 'F:/workSpace/matlabWork/imgResult/';
+foldName = ["downSample/" "filt/" "resMat/" "orthImg/" "gaussFilt/"];
+ds_image_savePath =  [rootPath char(foldName(1))];
+filter_image_savePath = [rootPath char(foldName(2))];
+mat_savePath = [rootPath char(foldName(3))];
 intrinsics_name = 'intrinsicMat_phantom4rtk.mat';
 % intrinsics_name = 'intrinsicMat_mavir_pro_1080.mat';
 fs = 2;
 
-if ~isfolder(ds_image_savePath)
-     mkdir('F:/workSpace/matlabWork/imgResult','downSample');
-end
+
 
 
 
@@ -33,8 +34,16 @@ disp('----------step1 start--------------- ');
 
 step1.videoPath = 'H:/2021_05_15_data/data/2021_05_15上午数据/第一组定点/DJI_0131.MOV';
 step1.savePath = ds_image_savePath;
+step1.filterPath = filter_image_savePath;
 step1.fs = fs;
 step1.videoRange = [0,300]; %5分钟的截取时长,一共有（end-begin）*fs张采样图片
+if ~isfolder(ds_image_savePath)
+     mkdir(rootPath,char(foldName(1)));
+end
+if ~isfolder(filter_image_savePath)
+     mkdir(rootPath,char(foldName(2)));
+end
+
 downSampleFromVideo(step1);
 
 disp('----------step1 finish--------------- ');
@@ -120,7 +129,9 @@ step3.gcpInfo_world_path = [mat_savePath 'gcpInfo_world.mat'];
 step3.intrinsic_path = ['./neededData/',intrinsics_name];
 step3.savePath = mat_savePath;
 
-step3.mode = 2;
+% mode = 1： 非线性拟合计算外参
+% mode = 2：利用姿态角直接计算外参
+step3.mode = 1; 
 %非线性拟合的初始值。
 
 %前三为相机在NED坐标系下的坐标
@@ -128,6 +139,7 @@ step3.mode = 2;
 step3.extrinsicsInitialGuess = [50  50  -90 deg2rad(-26.7) deg2rad(0) deg2rad(-100)];
 step3.extrinsicsKnownsFlag = [0,0,0,0,0,0];
 
+%直接计算得出
 step3.no_use_gcp.ned2b = [-26.7,0,-126.40];
 
 matchGcp(step3);
@@ -148,7 +160,7 @@ disp('----------step4 start--------------- ');
 step4.gcp_path = [mat_savePath 'gcpFullyInfo.mat'];
 step4.savePath = mat_savePath;
 step4.fs = fs;
- step4.brightFlag = 'bright'; 
+step4.brightFlag = 'bright'; 
 % step4.brightFlag = 'dark'; 
 getScpInfo(step4);
 
@@ -230,7 +242,7 @@ disp('-----------step7 start--------------- ');
 
 step7.roi_path = [mat_savePath 'GRID_roiInfo.mat'];
 step7.extrinsicFullyInfo_path = [mat_savePath 'extrinsicFullyInfo.mat'];
-step7.unsolvedPic_path = ds_image_savePath;
+step7.unsolvedPic_path = filter_image_savePath;
 step7.savePath = mat_savePath;
 
 
@@ -262,11 +274,10 @@ disp('-----------step7 finish--------------- ');
 disp('----------step8 start--------------- ');
 
 step8.pixelInst_path = [mat_savePath 'pixelImg.mat'];
-step8.savePath = 'F:/workSpace/matlabWork/imgResult/orthImg/';
-
+step8.savePath = [rootPath char(foldName(4))];
 
 if ~isfolder(step8.savePath)
-     mkdir('F:/workSpace/matlabWork/imgResult','orthImg');
+     mkdir(rootPath,char(foldName(4)));
 end
 
 
@@ -276,20 +287,21 @@ rotImg(step8.pixelInst_path,step8.savePath);
 
 disp('----------step8 finish--------------- ');
 
+disp('----------ALL STEP FINISH!!--------------- ');
 
 %% 可选平滑滤波项，选择高斯低通滤波器
 
-step9.path = 'F:/workSpace/matlabWork/imgResult/orthImg/';
-step9.save_path = 'F:/workSpace/matlabWork/imgResult/gaussFilter/';
-if ~isfolder(step9.save_path)
-    mkdir('F:/workSpace/matlabWork/imgResult','gaussFilter');
-end
+% step9.path =  [rootPath char(foldName(4))];
+% step9.save_path = [rootPath char(foldName(5))];
+% if ~isfolder(step9.save_path)
+%     mkdir(rootPath,char(foldName(5)));
+% end
+% 
+% 
+% guassfilterForOrthoImg(step9);
 
 
-guassfilterForOrthoImg(step9);
-
-
-disp('----------ALL STEP FINISH!!--------------- ');
+% disp('----------ALL STEP FINISH!!--------------- ');
 
 % 完成！
 
