@@ -1,7 +1,9 @@
 
 % 该函数为从一个视频开始，直到一组正射图像的整个流程
 
-addpath(genpath('./ProcessFromVideo/CoreFunctions/'));
+addpath(genpath('CoreFunctions'));
+addpath(genpath('steps'));
+addpath(genpath('neededData'));
 % rootPath = 'F:/workSpace/matlabWork/imgResult/';
 rootPath = 'H:/imgResult/';
 foldName = ["downSample/" "filt/" "resMat/" "orthImg/" "gaussFilt/"];

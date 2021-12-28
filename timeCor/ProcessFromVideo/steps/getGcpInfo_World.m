@@ -22,7 +22,7 @@ function [gcpInfo_world, uav_local] = getGcpInfo_World(step2)
     uav_pos_world = uav_pos_world';
 %     uav_local = ned2local(uav_pos_world, step2);
     
-    disp(['uav loal pos ' num2str(uav_pos_world)]);
+    disp(['uav world pos : ' num2str(uav_pos_world)]);
     
     if isempty(savePath) ~= 1
         saveName = 'gcpInfo';
