@@ -1,58 +1,41 @@
 function downSampleFromVideo(step)
-%DOWNSAMPLEFORVIDEO 该函数用于对一个视频进行图像降采样,事先最好先知道Video的信息
-
-
-%自己写的部分，不能用string(ls),不想写了，直接借鉴CIRN_A0的内容
-%     obj = VideoReader(VideoPath);
-%     totalFrames = obj.NumberOfFrames;% 视频帧的总数
-%     frameInterval = floor(ceil(obj.FrameRate)/Fs);
-%     lastFrames = floor(totalFrames/Multiple);
-        
-    
-    
-%         % imshow(frame);%显示帧
-%         imwrite(rgb2gray(frame),strcat(SavePath,"6Hz"+num2str(ceil(k/frameInterval)),'.jpg'),'jpg');
-%     end
-
-%     for k = 1 : frameInterval : lastFrames
-%         frame = read(obj,k);
-%% 以下为CIRN修改
 
     %如果不设置采样频率和采样帧时，默认为2Hz和全部帧转换
     
     videoPath = step.videoPath;
     savePath = step.savePath;
-    savePath2 = step.filterPath;
+    % determine downsample frequence. 
     
+    v = VideoReader(videoPath);
     
-    if(isfield(step,'fs')) 
+    if isfield(step,'fs') && ~isempty(step.fs)
         fs = step.fs;
     else
         fs = 2;
     end
     
-    if(isfield(step,'videoRange')) 
+    % determine used video range 
+    if isfield(step,'videoRange') && ~isempty(step.videoRange)
         videoRange = step.videoRange;
     else
-        videoRange = [];
+        videoRange = [0 v.Duration];
     end
     
+    % determine downsample image pixel resolution.
+    if isfield(step,'pixel') && ~isempty(step.pixel)
+        pixel = step.pixel;
+        if length(pixel) < 2
+            warning('uncorrect pixel resolution setting');
+            return;
+        end
+    else 
+        pixel = [];
+    end
     
-%     if nargin < 3
-%         fs = 2;
-%         videoRange = []; 
-%     elseif nargin < 4 
-%         videoRange = [];
-%     end 
-        
-    v = VideoReader(videoPath);
-
     to = datenum(2021,01,21,7,30,0); %第一帧的年月日时分秒，不知道也没事直接设置为0
     
     SaveName = 'downSample';
-    
-    
-    
+       
     % 初始化时间
     if to==datenum(0,0,0,0,0,0) % 如果不知道时间默认为0
         to=0;
@@ -63,101 +46,56 @@ function downSampleFromVideo(step)
     % 初始化循环
     k=1;
     count=1;
-    numFrames= v.Duration .* v.FrameRate;  % 视频总帧数
+    numFrames = v.Duration .* v.FrameRate;  % 视频总帧数
 
+    while k <= numFrames
 
-    if isempty(videoRange) %为空则说明从头到尾提取视频帧
-        while k <= numFrames
-
-            I = read(v,k);
-
-            if k==1
-                vto=v.CurrentTime;%单位为秒
-            end
-
-            t=v.CurrentTime; 
-            ts= (t-vto)+to; % ts为提取帧对应的秒数,单位为s
-
-            %Because of the way Matlab defines time. 
-            if k== numFrames
-                ts=ts+1./v.FrameRate;
-            end
-
-            % 防止文件名中出现小数,将秒转化为毫秒
-            ts=round(ts.*1000);
-
-            % 保存图片, 高斯低通滤波
-            I_gray = rgb2gray(I);
-            imwrite(I_gray,[savePath SaveName '_' num2str(ts) '.tif']);%可以考虑放到最后去灰度
-            I_filter = gaussfilter(I_gray, 50);
-            imwrite(I_filter,[savePath2 SaveName '_' num2str(ts) '.jpg']);%可以考虑放到最后去灰度
-
-%            imwrite(I,[savePath SaveName '_' num2str(ts) '.tif']);
-            % 显示进度，非常叼的机制
-            disp([ num2str( k./numFrames*100) '% Extraction Complete'])
-
-            % 得到下一帧的索引
-            k=k+round(v.FrameRate ./ fs);
-
-            % 储存时间信息
-            T(count)=ts/1000; %转化为秒
-            count=count+1;
-
+        I = read(v, k);
+        if k == 1
+            vto=v.CurrentTime;%单位为秒
         end
 
-    %指定videoRange范围之后
-    else 
-        %先确定结束时间所对应的帧数
-        while k <= numFrames
-
-            I = read(v, k);
-
-            if k==1
-                vto=v.CurrentTime;%单位为秒
-            end
-
-            t = v.CurrentTime;
-            if t < videoRange(1)
-                k = k + round(v.FrameRate ./ fs);
-                disp(['waiting for extraction:' num2str(videoRange(1)-t) 's']);
-                continue;
-            elseif t > videoRange(2)
-                disp('Out of specific video range');
-                break;
-            end
-
-            ts= (t-vto)+to; % ts为提取帧对应的秒数,单位为s
-
-
-
-            %Because of the way Matlab defines time. 
-            if k== numFrames
-                ts=ts+1./v.FrameRate;
-            end
-
-            % 防止文件名中出现小数,将秒转化为毫秒
-            ts=round(ts.*1000);
-
-            % 保存图片
-            I_gray  = rgb2gray(I);
-            
-            imwrite(I_gray,[savePath SaveName '_' num2str(ts) '.tif']);%可以考虑放到最后去灰度化
-            I_filter = gaussfilter(I_gray, step.d0);
-            imwrite(I_filter,[savePath2 SaveName '_' num2str(ts) '.jpg']);%可以考虑放到最后去灰度
-
-            % 显示进度，非常叼的机制
-            disp([ num2str( (t-videoRange(1))./(videoRange(2)- videoRange(1))*100) '% Extraction Complete'])
-            
-            % 得到下一帧的索引
-            k=k+round(v.FrameRate./fs);
-
-            % 储存时间信息
-            T(count)=ts/1000; %转化为秒
-            count=count+1;
-
+        t = v.CurrentTime;
+        
+        if t < videoRange(1)
+            k = k + round(v.FrameRate ./ fs);
+            disp(['waiting for extraction:' num2str(videoRange(1)-t) 's']);
+            continue;
+        elseif t > videoRange(2)
+            disp('Out of specific video range');
+            break;
         end
+
+        ts= (t-vto)+to; % ts为提取帧对应的秒数,单位为s
+        %Because of the way Matlab defines time. 
+        if k == numFrames
+            ts=ts+1./v.FrameRate;
+        end
+
+        % rounded time to ensure filename completation.
+        ts=round(ts.*1000);
+        
+        % resize image.
+        if ~isempty(pixel) 
+            I = imresize(I, pixel); % pixel is 1*2 vector:[numrows numcols]
+        end
+            
+        % save
+        imwrite(I,[savePath SaveName '_' num2str(ts) '.jpg']); %可以考虑放到最后去灰度化
+%                 I_filter = gaussfilter(I, step.d0);
+%                 imwrite(I_filter,[savePath2 SaveName '_' num2str(ts) '.jpg']);%可以考虑放到最后去灰度
+
+        % 显示进度，非常叼的机制
+        disp([ num2str( (t-videoRange(1))./(videoRange(2)- videoRange(1))*100) '% Extraction Complete'])
+
+        % 得到下一帧的索引
+        k=k+round(v.FrameRate./fs);
+
+        % 储存时间信息
+        T(count)=ts/1000; %转化为秒
+        count=count+1;
+
     end
-    
     
     
     
@@ -226,6 +164,4 @@ function [image_result] =gaussfilter(image_orign,D0)
 
     image_result = uint8(real(ifft2(image_result)));
 end
-
-
 

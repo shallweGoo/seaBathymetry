@@ -121,7 +121,7 @@ step2.world.euler_ned2new = [-148.5, 0, 0];
 
 step2.world.uav_llh = [22.596833 114.877683 88];
 
-getGcpInfo_World(step2);
+[~, uav_pos_world] = getGcpInfo_World(step2);
 
 
 % 2.2 getGcpInfo_UV函数原型为：function gcpInfo =  getGcpInfo_UV(imagePath,gcpSavePath,fs,mode)
@@ -169,7 +169,10 @@ step3.mode = 1;
 % rtk版本
 % step3.extrinsicsInitialGuess = [50  50  -90 deg2rad(-26.7) deg2rad(0) deg2rad(-100)];
 % mavoc
-step3.extrinsicsInitialGuess = [110  120  -87 deg2rad(-16) deg2rad(0) deg2rad(-114)];
+% CCDC Params
+% step3.extrinsicsInitialGuess = [110  120  -87 deg2rad(-16) deg2rad(0) deg2rad(-114)];
+% more specicial 
+step3.extrinsicsInitialGuess = [uav_pos_world deg2rad(-16) deg2rad(0) deg2rad(-114)];
 step3.extrinsicsKnownsFlag = [0,0,0,0,0,0];
 
 %直接计算得出

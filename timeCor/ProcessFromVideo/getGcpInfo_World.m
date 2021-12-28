@@ -20,9 +20,9 @@ function [gcpInfo_world, uav_local] = getGcpInfo_World(step2)
     
     uav_pos_world = gcpllh2NED(o_llh, uav_llh); % gcp->ned 这个函数在之前的文件夹
     uav_pos_world = uav_pos_world';
-    uav_local = ned2local(uav_pos_world, step2);
+%     uav_local = ned2local(uav_pos_world, step2);
     
-    disp(['uav loal pos ' num2str(uav_local)]);
+    disp(['uav loal pos ' num2str(uav_pos_world)]);
     
     if isempty(savePath) ~= 1
         saveName = 'gcpInfo';
