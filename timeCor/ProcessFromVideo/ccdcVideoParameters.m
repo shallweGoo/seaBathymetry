@@ -1,4 +1,7 @@
-addpath(genpath('./ProcessFromVideo/CoreFunctions/'));
+
+addpath(genpath('CoreFunctions'));
+addpath(genpath('steps'));
+addpath(genpath('neededData'));
 % rootPath = 'F:/workSpace/matlabWork/imgResult/';
 rootPath = 'H:/imgResult/';
 foldName = ["downSample/" "filt/" "resMat/" "orthImg/" "gaussFilt/"];
@@ -8,6 +11,16 @@ mat_savePath = [rootPath char(foldName(3))];
 % intrinsics_name = 'intrinsicMat_phantom4rtk.mat';
 intrinsics_name = 'intrinsicMat_mavir_pro_1080.mat';
 fs = 4;
+
+
+for i = 1 : length(foldName)
+    if ~isfolder([rootPath char(foldName(i))])
+        mkdir(rootPath, char(foldName(i)));
+    end
+end
+
+
+
 %% step1
 % videoPath ： 视频的绝对路径
 % savePath ： 存放结果图片的绝对路径
@@ -19,6 +32,9 @@ step1.filterPath = filter_image_savePath;
 step1.fs = fs;
 step1.d0 = 50;
 step1.videoRange = [300, 600]; %5分钟的截取时长,一共有（end-begin）*fs张采样图片
+
+downSampleFromVideo(step1);
+disp('----------step1 finish--------------- ');
 
 %% step2
 % 输入参数：
@@ -37,7 +53,7 @@ step2.world.gcp_llh = [
 step2.world.o_llh = [22.5958634,114.8765426,0.1];
 step2.world.euler_ned2new = [-148.5, 0, 0];
 step2.world.uav_llh = [22.596833 114.877683 88];
-
+[~, uav_pos_world] = getGcpInfo_World(step2);
 %   fs ： 采样频率
 %   mode ： 模式1：获取gcp在函数内定义的信息。模式2：获取除了之前的信息之外，令加入了gcp模板
 ff_name = string(ls(ds_image_savePath));
@@ -47,7 +63,7 @@ step2.UV.imagePath = [ds_image_savePath ff_name];
 step2.UV.gcpSavePath = mat_savePath;
 step2.UV.fs = fs;
 getGcpInfo_UV(step2, 1);
-
+disp('----------step2 finish--------------- ');
 
 %% step3
 % 第三步 以第一帧获取整合gcp数据（将UV数据和World数据结合）,以及第一帧的外参
@@ -75,6 +91,8 @@ step3.mode = 1;
 % mavoc
 step3.extrinsicsInitialGuess = [110  120  -87 deg2rad(-16) deg2rad(0) deg2rad(-114)];
 step3.extrinsicsKnownsFlag = [0,0,0,0,0,0];
+matchGcp(step3);
+disp('----------step3 finish--------------- ');
 
 %% step4
 % gcp_path ： 由step3所得到的gcp的全部信息的mat格式数据的绝对路径
@@ -85,6 +103,8 @@ step4.gcp_path = [mat_savePath 'gcpFullyInfo.mat'];
 step4.savePath = mat_savePath;
 step4.fs = fs;
 step4.brightFlag = 'bright'; 
+getScpInfo(step4);
+disp('----------step4 finish--------------- ');
 
 %% step5
 % 输入参数：
@@ -101,7 +121,8 @@ step5.unsovledExtrinsic_pic_path = ds_image_savePath;
 step5.savePath = mat_savePath;
 step5.mode = 1;
 step5.fs = fs;
-
+calcFollowedExtrinsic(step5);
+disp('----------step5 finish--------------- ');
 
 %% step6
 % 第六步，选择感兴趣的区域,主要是获取该区域的local_xyz信息
@@ -125,7 +146,8 @@ step6.savePath = mat_savePath;
 
 step6.local_flag_input = 1;%输入的参数相对于world坐标系的。
 
-
+chooseRoi(step6);
+disp('----------step6 finish--------------- ');
 %% step7
 % 输入参数：
 % roi_path ： roi息的mat格式数据绝对路径
@@ -159,6 +181,8 @@ step7.inputStruct.x_rag = [0,300];
 step7.inputStruct.y_dy = 0.5;
 step7.inputStruct.y_ox = 0;
 step7.inputStruct.y_rag = [0,100];
+getPixelImage(step7);
+disp('----------step7 finish--------------- ');
 %% step8
 
 % pixelInst_path ： 像素信息的结构的绝对路径
@@ -166,4 +190,9 @@ step7.inputStruct.y_rag = [0,100];
 step8.pixelInst_path = [mat_savePath 'pixelImg.mat'];
 step8.savePath = [rootPath char(foldName(4))];
 
+rotImg(step8.pixelInst_path,step8.savePath);
+
+disp('----------step8 finish--------------- ');
+
+disp('----------ALL STEP FINISH!!--------------- ');
 

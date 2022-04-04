@@ -10,10 +10,14 @@ foldName = ["downSample/" "filt/" "resMat/" "orthImg/" "gaussFilt/"];
 ds_image_savePath =  [rootPath char(foldName(1))];
 filter_image_savePath = [rootPath char(foldName(2))];
 mat_savePath = [rootPath char(foldName(3))];
-% intrinsics_name = 'intrinsicMat_phantom4rtk.mat';
-intrinsics_name = 'intrinsicMat_mavir_pro_1080.mat';
-fs = 4;
-
+intrinsics_name = 'intrinsicMat_phantom4rtk.mat';
+% intrinsics_name = 'intrinsicMat_mavir_pro_1080.mat';
+fs = 2;
+for i = 1 : length(foldName)
+    if ~isfolder([rootPath foldName(1)])
+        mkdir(rootPath, char(foldName(1)));
+    end
+end
 
 
 
@@ -31,10 +35,11 @@ fs = 4;
 
 disp('----------step1 start--------------- ');
 % step1.videoPath = 'E:/海浪原始数据/2021.01.21双月湾/2021_01_22早/DJI_0189.MOV'; % mavoc
-step1.videoPath = 'E:/海浪原始数据/2021.01.21双月湾/2021_01_21晚/DJI_0183.MOV'; % 
+% step1.videoPath = 'E:/海浪原始数据/2021.01.21双月湾/2021_01_21晚/DJI_0183.MOV'; % 
 % step1.videoPath = 'E:/海浪原始数据/2021.01.12双月湾/视频数据/第一组/DJI_0178.MOV';
 %step1.videoPath = 'E:/海浪原始数据/2020年10月惠州数据/_10.24_双月湾/第五组/DJI_0160.MOV';
 %step1.videoPath = 'E:/海浪原始数据/2020年10月惠州数据/_10.24_双月湾/第二组/DJI_0150.MOV';
+step1.videoPath = 'H:/2021_05_15_data/data/2021_05_14上午数据/第一组定点/DJI_0063.MOV';
  
 % 最后一次去
 % step1.videoPath = 'H:/2021_05_15_data/data/2021_05_15上午数据/第一组定点/DJI_0131.MOV'; % 精灵4
@@ -43,7 +48,7 @@ step1.filterPath = filter_image_savePath;
 step1.fs = fs;
 step1.d0 = 50;
 % step1.videoRange = [0, 300]; %5分钟的截取时长,一共有（end-begin）*fs张采样图片
-step1.videoRange = [300, 600]; %5分钟的截取时长,一共有（end-begin）*fs张采样图片
+step1.videoRange = [0, 300]; %5分钟的截取时长,一共有（end-begin）*fs张采样图片
 if ~isfolder(ds_image_savePath)
      mkdir(rootPath,char(foldName(1)));
 end
@@ -105,14 +110,16 @@ step2.world.savePath = mat_savePath;
 
 
 step2.world.gcp_llh = [
-    [22.5960988,114.8759359,0];
-    [22.5959546,114.8762086,0];
-    [22.5958634,114.8765426,0.1];
-    [22.5952071,114.8767393,2.2];
-    [22.5948237,114.8764282,2.1];
+    22.595722 114.876675 1.999;
+    22.595750 114.876458 1.967;
+    22.595814 114.876192 1.912;
+    22.596081 114.876048 2.104;
+    22.595967 114.875936 1.933
 ];
 
-step2.world.o_llh = [22.5958634,114.8765426,0.1];
+
+
+step2.world.o_llh = [22.595722 114.876675 1.999];
 
 
 
@@ -121,7 +128,7 @@ step2.world.euler_ned2new = [-148.5, 0, 0];
 
 % step2.world.uav_llh = [22.59637164 114.8772232 89.682];%无人机机体的经纬高,用rtk应该会准很多
 
-step2.world.uav_llh = [22.596833 114.877683 88];
+step2.world.uav_llh = [22.596466 114.877152 78.572];
 
 [~, uav_pos_world] = getGcpInfo_World(step2);
 
@@ -174,7 +181,7 @@ step3.mode = 1;
 % CCDC Params
 % step3.extrinsicsInitialGuess = [110  120  -87 deg2rad(-16) deg2rad(0) deg2rad(-114)];
 % more specicial 
-step3.extrinsicsInitialGuess = [uav_pos_world deg2rad(-16) deg2rad(0) deg2rad(-114)];
+step3.extrinsicsInitialGuess = [uav_pos_world deg2rad(-24) deg2rad(0) deg2rad(-100)];
 step3.extrinsicsKnownsFlag = [0,0,0,0,0,0];
 
 %直接计算得出
@@ -204,7 +211,7 @@ getScpInfo(step4);
 
 disp('----------step4 finish--------------- ');
 
-%% step5 calcFollowedExtrinsic
+% step5 calcFollowedExtrinsic
 % 第五步：利用已知信息（scp或模板）来计算之后每张图片的外参
 % 函数原型：calcFollowedExtrinsic(scp_path,gcp_path,rotateInfo_path,unsovledExtrinsic_pic_path,savePath,mode)
 % 输入参数：

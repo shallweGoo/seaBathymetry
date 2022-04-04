@@ -1,4 +1,4 @@
-function [gcpInfo_world, uav_local] = getGcpInfo_World(step2) 
+function [gcpInfo_world, uav_pos_world] = getGcpInfo_World(step2) 
 % 该函数用于获取gcp在自建坐标系下的坐标，要求有顺序的输入
 % 输入参数为gcp_llh(gps),o_llh(原点gps),cmPara(相机参数)
 % 借助了gps(经纬高llh) -> 东北天(enu) -> 北东地(ned) -> 自建坐标系(new)这样的一个流程,原点需要自选

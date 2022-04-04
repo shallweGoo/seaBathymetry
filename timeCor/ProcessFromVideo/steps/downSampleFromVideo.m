@@ -4,6 +4,7 @@ function downSampleFromVideo(step)
     
     videoPath = step.videoPath;
     savePath = step.savePath;
+    filterPath = step.filterPath;
     % determine downsample frequence. 
     
     v = VideoReader(videoPath);
@@ -82,8 +83,8 @@ function downSampleFromVideo(step)
             
         % save
         imwrite(I,[savePath SaveName '_' num2str(ts) '.jpg']); %可以考虑放到最后去灰度化
-%                 I_filter = gaussfilter(I, step.d0);
-%                 imwrite(I_filter,[savePath2 SaveName '_' num2str(ts) '.jpg']);%可以考虑放到最后去灰度
+        I_filter = gaussfilter(I, step.d0);
+        imwrite(I_filter,[filterPath SaveName '_' num2str(ts) '.jpg']);%可以考虑放到最后去灰度
 
         % 显示进度，非常叼的机制
         disp([ num2str( (t-videoRange(1))./(videoRange(2)- videoRange(1))*100) '% Extraction Complete'])

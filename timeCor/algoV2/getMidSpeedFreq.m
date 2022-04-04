@@ -47,8 +47,10 @@ if params.DEBUG == 1
     tmp_y = polyval(linear_curve, timelag);
     plot(timelag, tmp_y, 'color','r', 'LineWidth',3);
 %     title('wave celerity fitting');
-    xlabel('time lag(s)');
-    ylabel('distance(m)');
+%     xlabel('time lag(s)');
+%     ylabel('distance(m)');
+    xlabel('时滞(s)');
+    ylabel('离目标点距离(m)');
     
 end
 
@@ -70,7 +72,24 @@ for i = 1 : size(data, 2) % 有n个信号
     max_cor_val_set(i, :) = max_cor;
     if params.DEBUG == 1
         figure(32);%  互相关图窗编号32
-        plot(series_num, cor_mag);
+        plot(series_num .*params.dt, cor_mag);
+        hold on;
+%         text(series_num(max_id),cor_mag(max_id),'o','color','r');
+        text(series_num(max_id), cor_mag(max_id), '\leftarrow 最大互相关值点','FontSize',15, 'color','k');
+%         text(series_num(max_id), cor_mag(max_id), ['(',num2str(series_num(max_id)* params.dt),',',num2str(cor_mag(max_id)),')'],'color','b');
+
+        maxy = max_cor;
+        maxx = series_num(max_id) * params.dt;%找出y最大值对应的x值
+        axis tight;
+        ax = axis;%获得当前坐标的范围
+        hold on;%保持图像
+        plot([ax(1),ax(2)],[maxy,maxy],'r:','linewidth',3);
+        hold on;
+        plot([maxx,maxx],[ax(3),ax(4)],'r:','linewidth', 3);%绘制纵横线
+        set(gca,'FontSize',15);
+        
+        xlabel('时滞(s)','FontSize',15);
+        ylabel('互相关值','FontSize',15);
     end
 end
 

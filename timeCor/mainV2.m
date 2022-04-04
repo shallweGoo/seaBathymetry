@@ -1,4 +1,4 @@
-dbstop if all error  % 方便调试
+% dbstop if all error  % 方便调试 但是会触发mdbstatus
 station_str = 'phantom4';
 % 执行参数注入
 addpath('algoV2');
@@ -20,8 +20,8 @@ for longshore = min(y) : params.dist : max(y)
     one_long_shore_id = find(y == longshore);
     cross_shore_x = x(one_long_shore_id, :);
     one_long_shore_data = data_final(:, one_long_shore_id);
-    for cross_shore = min(cross_shore_x) : params.dist : max(cross_shore_x)
-        
+%     for cross_shore = min(cross_shore_x) : params.dist : max(cross_shore_x)
+    for cross_shore = 250
         ref_id = find(cross_shore_x == cross_shore); % 找到所在的索引
         ref = one_long_shore_data(:, ref_id);
         data_set = one_long_shore_data(:, 1 : (ref_id - 1));

@@ -385,7 +385,7 @@ ylabel('cross shore(m)');
 % 画对应的时域图和频域图
 
 
-%%
+%% ccdc画图
 
 close all;
 imagesc(time_stack);
@@ -407,9 +407,12 @@ set(gca,'YDir','reverse');
 xlabel('time(s)');
 ylabel('cross shore(m)');
 legend('134m','149m','150m');
+
+
+%%
 % 画对应的时域图和频域图
 
-Fs = 4;
+Fs = 2;
 N = params.N;
 n = 0:N-1;
 t = n / Fs;
@@ -474,7 +477,7 @@ correlationCalc(s1, s2, 1/Fs);
 
 
 %% 画固定时间的互相关的图，先固定出一列timestack, 然后根据这个timestack点进行计算
-dbstop if all error  % 方便调试
+% dbstop if all error  % 方便调试
 station_str = 'phantom4';
 % 执行参数注入
 eval(station_str);
@@ -505,8 +508,6 @@ end
 
 
 
-
-
 %% 接上一个的画图
 plot_cor = flipud(cor);
 plot_cor(:, 1: 61) = 0;
@@ -533,6 +534,11 @@ for i = 61 : size(cor, 2)
 end
 
 plot(cor_struct.max_point(:,2), size(cor, 1) - cor_struct.max_point(:,1),'LineWidth', 2, 'color','w');
+
+
+
+
+
 
 
 

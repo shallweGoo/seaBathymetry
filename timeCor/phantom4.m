@@ -1,12 +1,16 @@
 %%% ²ÎÊıÊäÈë
 params.station_str = 'phantom4';    % ËØ²ÄÀ´Ô´Æ½Ì¨Ãû³Æ
+% params.img_path = 'H:/stitchData/1/resImg/';
 params.img_path = 'H:/imgResult/filt/';
 params.final_path = 'H:/imgResult/orthImg/';
 params.img_name = string(ls(params.img_path));
 params.img_name = params.img_name(3:end);
+params.final_name = string(ls(params.final_path));
+params.final_name = params.final_name(3:end);
+
 %%%%%
 params.fs = 4;                      % ²ÉÑùÆµÂÊ
-params.N = length(params.img_name); % ÊÓÆµÍ¼Ïñ³¤¶È
+params.N = length(params.final_name); % ÊÓÆµÍ¼Ïñ³¤¶È
 params.dxm = 0.5;                   % local×ø±êÏµ xÖá¾àÀë·Ö±æÂÊ
 params.dym = 0.5;                   % local×ø±êÏµ yÖá¾àÀë·Ö±æÂÊ
 params.prm = params.dxm;
@@ -39,19 +43,19 @@ params.DECIMATE = 1;                % decimate pixels to reduce work load. ¼õÉÙÏ
 params.maxNPix = 80;                % max num pixels per tile (decimate excess) Ã¿¿éÇøÓòÖĞ×î¶à´æÔÚ80¸öÏñËØµã
 
 % Ñ¡ÔñÒª·ÖÎöµÄÆµÂÊ·¶Î§
-params.fB = [1/18: 1/50: 1/2];		% Ã¶¾Ù¿ÉÄÜµÄÆµÂÊÖµ
+params.fB = [1/18: 1/50: 1/4];		% Ã¶¾Ù¿ÉÄÜµÄÆµÂÊÖµ
 params.nKeep = 7;                   % ±£ÁôÖ÷ÒªÆµÂÊµÄ¸öÊı
 params.dfB = mean(diff(params.fB)); % dfBs
 
 
 % ÊÇ·ñ¿ªÆôdebug¹¦ÄÜ
-params.DEBUG = 0;
+params.DEBUG = 1;                       % ·ÖÎö»¥Ïà¹ØÑ¡Ïî
 params.debug.production = 0;            % 1¿ªÆô£¬0¹Ø±Õ
 params.debug.DOPLOTSTACKANDPHASEMAPS = 1;  % »­³öÆµÂÊ¶ÔÓ¦µÄÏàÎ»Í¼
 params.debug.DOSHOWPROGRESS = 1;		  % ¹ı³ÌÍ¼Õ¹Ê¾
 params.debug.DOPLOTPHASETILE = 1;		  % Ã¿¸öÏñËØµãµÄeof½á¹û
-params.debug.TRANSECTX = 200;		  % »­Í¼Ñ¡Ïî£¬»­³öxÖáµÄ½Ø¶ÏÃæ£¬Õâ¸öÎªx×ø±êÖµ
-params.debug.TRANSECTY = 200;		  % »­Í¼Ñ¡Ïî£¬»­³öyÖáµÄ½Ø¶ÏÃæ£¬Õâ¸öÎªy×ø±êÖµ
+params.debug.TRANSECTX = 0;		  % »­Í¼Ñ¡Ïî£¬»­³öxÖáµÄ½Ø¶ÏÃæ£¬Õâ¸öÎªx×ø±êÖµ
+params.debug.TRANSECTY = 0;		  % »­Í¼Ñ¡Ïî£¬»­³öyÖáµÄ½Ø¶ÏÃæ£¬Õâ¸öÎªy×ø±êÖµ
 
 % default offshore wave angle.  For search seeds.
 params.offshoreRadCCWFromx = 0;
