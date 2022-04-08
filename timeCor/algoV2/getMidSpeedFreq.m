@@ -74,7 +74,6 @@ for i = 1 : size(data, 2) % 有n个信号
         figure(32);%  互相关图窗编号32
         plot(series_num .*params.dt, cor_mag);
         hold on;
-%         text(series_num(max_id),cor_mag(max_id),'o','color','r');
         text(series_num(max_id), cor_mag(max_id), '\leftarrow 最大互相关值点','FontSize',15, 'color','k');
 %         text(series_num(max_id), cor_mag(max_id), ['(',num2str(series_num(max_id)* params.dt),',',num2str(cor_mag(max_id)),')'],'color','b');
 

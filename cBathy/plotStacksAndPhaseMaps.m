@@ -44,7 +44,7 @@ nRows = ceil(nf / nCols);     % 行的取值，10的话这个值为3
 figure(11); set(gcf, 'name', 'Phase Maps'); clf; colormap('jet');
 for i = 1:nf
     ind = find(abs(f-fB(i)) == min(abs(f-fB(i)))); %寻找和实际频率对应最新的那个频率点的索引
-    subplot(nRows, nCols, i,'FontSize',7); hold on
+    subplot(nRows, nCols, i,'FontSize',15); hold on
     %一个频率f下所有的点xyz的相角信息,以x当作横坐标，y当作纵坐标，相角信息当作颜色阈值，如果相同的相角会显示一样的颜色
     
 %     一个信号的傅里叶变换，你可以这样理解：
@@ -57,7 +57,7 @@ for i = 1:nf
     caxis([-pi pi]);
     axis ([ min(xyz(:,1)) max(xyz(:,1)) min(xyz(:,2)) max(xyz(:,2))]);
     view(2); 
-    title(['f = ' num2str(fB(i),'%0.3g') ' Hz'],'FontWeight','normal','FontSize',9); 
+    title(['f = ' num2str(fB(i),'%0.3g') ' Hz'],'FontWeight','normal','FontSize',30); 
     grid on
 end
 

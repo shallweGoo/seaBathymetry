@@ -143,7 +143,7 @@ disp('get t successfully!');
 
 % data_lowpass = lowPassFliter(data, params);
 
-save(save_name, 'xyz', 'data', 't');
+save([save_path save_name], 'xyz', 'data', 't');
 
 disp('process done');
 

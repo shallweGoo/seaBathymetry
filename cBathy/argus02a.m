@@ -24,7 +24,7 @@ params.fB = [1/18: 1/50: 1/4];		% frequencies for analysis (~40 dof) 10¸öÆµÂÊÖµ±
 params.nKeep = 4;                   % number of frequencies to keep  ÒªÎ¬»¤nKeep¸öÆµÂÊ×÷Îª±¸Ñ¡
 
 % debugging options  debugÑ¡Ïî
-params.debug.production = 0;            %Õâ¸öÓ¦¸ÃÊÇ×Ü¿ª¹Ø£¬Îª1²»debug
+params.debug.production = 1;            %Õâ¸öÓ¦¸ÃÊÇ×Ü¿ª¹Ø£¬Îª1²»debug
 params.debug.DOPLOTSTACKANDPHASEMAPS = 1;  % top level debug of phase %»­³öÆµÂÊ¶ÔÓ¦µÄÏàÎ»Í¼µÄ¿ª¹Ø
 params.debug.DOSHOWPROGRESS = 1;		  % show progress of tiles
 params.debug.DOPLOTPHASETILE = 1;		  % observed and EOF results per pt

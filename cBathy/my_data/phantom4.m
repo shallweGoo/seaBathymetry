@@ -21,13 +21,13 @@ params.maxNPix = 80;                % max num pixels per tile (decimate excess) 
 
 % f-domain etc.
 params.fB = [1/18: 1/50: 1/4];		% frequencies for analysis (~40 dof) 10个频率值备选
-params.nKeep = 7;                   % number of frequencies to keep  要维护nKeep个频率作为备选
+params.nKeep = 5;                   % number of frequencies to keep  要维护nKeep个频率作为备选
 
 % debugging options  debug选项
-params.debug.production = 0;            %这个应该是总开关，为1不debug
-params.debug.DOPLOTSTACKANDPHASEMAPS = 1;  % top level debug of phase %画出频率对应的相位图的开关
-params.debug.DOSHOWPROGRESS = 1;		  % show progress of tiles
-params.debug.DOPLOTPHASETILE = 1;		  % observed and EOF results per pt
+params.debug.production = 1;            %这个应该是总开关，为1不debug
+params.debug.DOPLOTSTACKANDPHASEMAPS = 0;  % top level debug of phase %画出频率对应的相位图的开关
+params.debug.DOSHOWPROGRESS = 0;		  % show progress of tiles
+params.debug.DOPLOTPHASETILE = 0;		  % observed and EOF results per pt
 params.debug.TRANSECTX = 100;		  % for plotStacksAndPhaseMaps 画图选项
 params.debug.TRANSECTY = 50;		  % for plotStacksAndPhaseMaps
 

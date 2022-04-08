@@ -102,11 +102,11 @@ set(gca,'xticklabel',[0:50:600] .* 0.5);
 % xlabel('cross-shore(m)','fontsize', 30);
 % ylabel('pixel intensity', 'fontsize', 30);
 
-set(gca,'FontSize',15);
+set(gca,'FontSize',30);
 legend('原信号像素强度','高斯滤波后信号像素强度');
 
-xlabel('跨岸距离(m)','fontsize', 15);
-ylabel('像素强度值', 'fontsize', 15);
+xlabel('跨岸距离(m)','fontsize', 30);
+ylabel('像素强度值', 'fontsize', 30);
 
 
 

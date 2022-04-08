@@ -199,4 +199,31 @@ legend('149m','150m');
 
 
 
+%% 互功率谱分析完的频域分布图
+
+Fs = 2;
+N = params.N;
+n = 0:N-1;
+t = n / Fs;
+s3 = data(:, 29128);
+G3 = fft(detrend(double(s3)))';
+
+figure
+plot(f, abs(G3(:, 1 : length(f))), 'color', 'k','linewidth', 2);
+% title('Frequency distribution of signal after main frequency extraction');
+
+
+hold on;
+s4 = data_final(:, 29128); % 
+G4 = fft(detrend(double(s4)))';
+df = Fs / N; 
+dt = 1 / Fs;
+f = [0 : df : 1 / (2 * dt) - df];
+plot(f, abs(G4(:, 1 : length(f))),'color','r', 'linewidth', 2);
+xlabel('频率(Hz)');
+ylabel('傅里叶变换幅值');
+set(gca,'FontSize',30);
+legend('原信号频率分布','互功率谱分析后保留频率分布');
+
+
 

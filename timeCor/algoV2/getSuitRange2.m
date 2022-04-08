@@ -13,6 +13,7 @@ end
 if params.DEBUG == 1
     figure(2);  % 2ºÅ´°¿ÚÓÃÓÚdebug
     plot(cor_coff, 'r'); 
+    pause();
 end
 
 [~, id] = max(cor_coff);

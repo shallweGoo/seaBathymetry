@@ -30,11 +30,12 @@ else
     %%lines 18-24, create sensitivity vectors gammaiBar and mu
     % find the dispersion sensitivity, mu.  This will used to interp into
     % gammi, mu, below.
-    gammai = [0.0: 0.01: 1]; %100个点
-    gammaiBar = (gammai(1:end-1)+gammai(2:end))/2;
-    foo = gammai.*atanh(gammai);
-    dFoodGamma = diff(foo)./diff(gammai);
-    mu = dFoodGamma./tanh(gammaiBar);
+    % 这是一个类似指数的曲线，用于拟合的，曲线是怎么来的我也不知道，单调递增，值域在[2,+inf)
+    gammai = [0.0: 0.01: 1]; %1*101
+    gammaiBar = (gammai(1:end-1)+gammai(2:end))/2; % 1*100
+    foo = gammai.*atanh(gammai);% 1*101
+    dFoodGamma = diff(foo)./diff(gammai); % 1*100
+    mu = dFoodGamma./tanh(gammaiBar); % 1*100
 end
 
 params = bathy.params;
@@ -59,13 +60,13 @@ for ix = 1: length(x)
         dxmi = X - x(ix); %每一个元素都减去x(ix)
         dymi = Y - y(iy); %每一个元素都减去y(iy)
         r = sqrt((dxmi/(params.Lx*kappa)).^2 + (dymi/(params.Ly*kappa)).^2); %汉明参数
-        Wmi = interp1(ri,ai,r,'linear*',0);  % sample normalized weights  得到汉明权重参数
+        Wmi = interp1(ri,ai,r,'linear*',0);  % sample normalized weights  得到汉明权重参数, 实际上综合里待测图里面的所有区域的距离，进行加权
 
         %找到汉明权重参数Wmi里面 > 0且 拟合值符合要求 且 hTemp不为nan的 索引
         id = find((Wmi > 0) & ...
                   (bathy.fDependent.skill>params.QTOL) & ...
                    (~isnan(bathy.fDependent.hTemp)));
-        if(length(id)>params.minValsForBathyEst)  %这个值为4              % just need two
+        if(length(id)>params.minValsForBathyEst)  %这个值为4              % just need minValsForBathyEst 
             f = bathy.fDependent.fB(id);
             k = bathy.fDependent.k(id);
             kErr = bathy.fDependent.kErr(id);
@@ -74,24 +75,25 @@ for ix = 1: length(x)
 %             % find dispersion sensitivity
              gamma = 4*pi*pi*f.*f./(g.*k);  %w^2/(gk) = tanh(gk) = gamma;
             if( CBATHYDoNotDeepWater )
-                w = Wmi(id).*l.*s./(eps+k);    % weights depend on skill and variance (lam) % 权重是这样得来的，权重Wmi*特征值lambda*拟合度/波数k
+                w = Wmi(id).*l.*s./(eps+k);    % weights depend on skill and variance (lam) % 权重是这样得来的，权重Wmi*特征值lambda*拟合度/波数k，看论文公式，也是cBathy自己定义的
             else
-                wMu = 1./interp1(gammaiBar, mu, gamma);
-                w = Wmi(id).*wMu.*l.*s./(eps+k);    % weights depend on skill and variance (lam)
+                wMu = 1./interp1(gammaiBar, mu, gamma); % 考虑到有深水情况，加入了另外一个权重因子，和gammar（频率和波数）有关系。
+%                 plot(gammaiBar, mu);
+                w = Wmi(id).*wMu.*l.*s./(eps+k);    % weights depend on skill and variance (lam) % 如果涉及深水，则权重还要乘一个wMu
             end
 
-            hInit = bathy.fDependent.hTemp(id)'*s / sum(s);  %hInit = 根据fDependent.hTemp(id)得出来的
+            hInit = bathy.fDependent.hTemp(id)'*s / sum(s);  %hInit = 根据fDependent.hTemp(id)得出来的,在这里为一维的深度，length(hInit) == 1;
             [h,resid,jacob] =nlinfit([f, w], k.*w, ...
-                'kInvertDepthModel',hInit, OPTIONS);  %h使用kInvertDepthModel这个函数拟合出来的
+                'kInvertDepthModel',hInit, OPTIONS);  % h使用kInvertDepthModel这个函数拟合出来的
             if (~isnan(h))      % some value returned %如果拟合有结果的话，就要进行一些误差分析
                 % 输出95%置信区间的误差
                 hErr = bathyCI(resid,jacob, w);		 % get limits not bounds
                 kModel = kInvertDepthModel(h, [f, w]);  %带权拟合出的kMode
-                J = sqrt(sum(kModel.*k.*w)/(eps+sum(w.^2))); % skill 计算拟合度
+                J = sqrt(sum(kModel.*k.*w)/(eps+sum(w.^2))); % skill 计算拟合度， sqrt(sum(k*k*w)/sum(w^2));
                 if ((J~=0) && (h>=params.MINDEPTH))
-                    bathy.fCombined.h(iy,ix) = h;   %带权的最终h
-                    bathy.fCombined.hErr(iy,ix) = hErr; %最终h误差
-                    bathy.fCombined.J(iy,ix) = J;
+                    bathy.fCombined.h(iy,ix) = h;   % 带权的最终h
+                    bathy.fCombined.hErr(iy,ix) = hErr; % 最终h误差
+                    bathy.fCombined.J(iy,ix) = J; %雅各比矩阵
                 end
             end
         end  % default h, hErr to nan if no successful solution.

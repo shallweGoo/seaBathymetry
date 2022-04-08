@@ -52,18 +52,24 @@ G = G./abs(G);  % scale spectral results to 1. %归一化傅里叶变化的取值
 
 % 定义分析范围
 % size of x and y intervals
-dxm = params.dxm; 
-dym = params.dym;
+% dxm = params.dxm; 
+% dym = params.dym;
+dist = params.dist;
 
 % span from the minimum X to maximum X in steps of dxm. Ditto Y.
 %  round lower boundary.  If exists xyMinMax, let user set xm, ym.
-if ~isempty(params.xyMinMax) %如果在.m(argus02a.m)文件中定义了xy的范围就直接取值
+
+if ~isempty(params.xy_min_max) %如果在.m(argus02a.m)文件中定义了xy的范围就直接取值
     
-    xm = [params.xyMinMax(1): dxm: params.xyMinMax(2)]; %选择xm,ym的位置，直接确定为向量了
-    ym = [params.xyMinMax(3): dym: params.xyMinMax(4)];
+%     xm = [params.xy_min_max(1): dxm: params.xy_min_max(2)]; %选择xm,ym的位置，直接确定为向量了
+%     ym = [params.xy_min_max(3): dym: params.xy_min_max(4)];
+    xm = [params.xy_min_max(1): dist: params.xy_min_max(2)]; %选择xm,ym的位置，直接确定为向量了，为了和timeCor输入参数统一，所以直接采用dist
+    ym = [params.xy_min_max(3): dist: params.xy_min_max(4)];
 else
-    xm = [ceil(min(xyz(:,1))/dxm)*dxm: dxm: max(xyz(:,1))]; %ceil向上取整，floor向下取整，bound为四舍五入
-    ym = [ceil(min(xyz(:,2))/dym)*dym: dym: max(xyz(:,2))]; 
+%     xm = [ceil(min(xyz(:,1))/dxm)*dxm: dxm: max(xyz(:,1))]; %ceil向上取整，floor向下取整，bound为四舍五入
+%     ym = [ceil(min(xyz(:,2))/dym)*dym: dym: max(xyz(:,2))]; 
+    xm = [ceil(min(xyz(:,1))/dist)*dist: dist: max(xyz(:,1))]; %ceil向上取整，floor向下取整，bound为四舍五入
+    ym = [ceil(min(xyz(:,2))/dist)*dist: dist: max(xyz(:,2))]; 
 end
 
 if (cBDebug(params, 'DOPLOTPHASETILE'))    % allow user to change array  允许用户选择自己感兴趣的区域进行xm，ym选择

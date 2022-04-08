@@ -17,7 +17,7 @@ function bathy = analyzeSingleBathyRunNotCIL(stackPnStr, stationStr)
 %   callable m-file that creates the params structure that contains all of
 %   the processing inputs.
 
-eval(stationStr)        % creates the params structure. %载入argus02a.m中的数据
+run(stationStr)        % creates the params structure. %载入argus02a.m中的数据
 load(stackPnStr)           % load xyz, t, data %载入图片和距离信息
 
 %data每一列里面是一个点的完整时间序列信号
