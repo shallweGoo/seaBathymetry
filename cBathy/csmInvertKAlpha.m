@@ -60,9 +60,12 @@ ri = [0:0.01:1]';       % create a hanning filter for later interp，构造汉明滤波
 ai = (1 - cos( pi*(0.5 + 0.5*ri) ).^2); % pi/2~ pi ,汉明滤波器的数学表达式（个人感觉，往下看）
 % 画图就知道ai长什么样子了
 % figure(90);
-% plot(ri,ai);
+% plot(ri,ai,'color', 'b', 'linewidth', 3);
+% xlabel('汉宁权重');
+% ylabel('汉宁滤波器值');
+% set(gca,'FontSize',30);
 % close(90);
-%% %% 2. find basic csm for all fB frequencies, sort by total coh^2 into preferred
+%% %% 2. find basic csm for all fB frequencies,s sort by total coh^2 into preferred
 %% %% order and keep only nKeep frequencies
 %如何计算海浪最相关的主频率，这里用EOF(主频分析法)分几步
 %1、计算特定频率范围的交叉谱，为矩阵形式，具体代码为  C(:,:,i) = G(id,:)'*G(id,:) / length(id)

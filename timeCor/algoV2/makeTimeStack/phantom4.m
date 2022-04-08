@@ -11,7 +11,7 @@ params.dist = 1;                    % 距离限制
 % params.pred_range = [10 40];      % 波长估计范围
 % params.pred_k = 1;
 
-params.xy_min_max = [0 180 0 135];  % local坐标系 xy轴的范围，12个元素是x轴，34是y轴
+params.xy_min_max = [0 300 0 100];  % local坐标系 xy轴的范围，12个元素是x轴，34是y轴
 
 params.xy_range = params.xy_min_max;
 params.xy_want = params.xy_min_max;

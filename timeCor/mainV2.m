@@ -1,11 +1,11 @@
-dbstop if all error  % 方便调试
-station_str = 'phantom4';
+% dbstop if all error  % 方便调试 但是会触发mdbstatus
+station_str = 'F:/workSpace/matlabWork/seaBathymetry/bathyParams';
 % 执行参数注入
 addpath('algoV2');
 addpath('common'); % 通用函数
-eval(station_str);
-load('data_final');
-load('data_struct');
+run(station_str);
+load([params.data_save_path 'data_final']);
+load([params.data_save_path 'data_struct']);
 % params.DEBUG = 0;
 % 进行滤波之后的信号提取
 
@@ -15,13 +15,13 @@ z = xyz(:, 3);
 bathy.h = nan((max(x) - min(x)) / params.dist + 1, (max(y) - min(y)) / params.dist + 1); % 行 * 列
 bathy.speed = bathy.h;
 bathy.f = bathy.h;
-
+params.DEBUG = 0;
 for longshore = min(y) : params.dist : max(y)
     one_long_shore_id = find(y == longshore);
     cross_shore_x = x(one_long_shore_id, :);
     one_long_shore_data = data_final(:, one_long_shore_id);
     for cross_shore = min(cross_shore_x) : params.dist : max(cross_shore_x)
-        
+%     for cross_shore = 200
         ref_id = find(cross_shore_x == cross_shore); % 找到所在的索引
         ref = one_long_shore_data(:, ref_id);
         data_set = one_long_shore_data(:, 1 : (ref_id - 1));
@@ -39,8 +39,8 @@ for longshore = min(y) : params.dist : max(y)
         end
         bathy.speed(mid_id, col) = speed;
         bathy.f(mid_id, col) = f;
-        h_max = 9.82*(1/f^2)/(2*pi)/2; % 参考cBathy的理论
-        
+%         h_max = 9.82*(1/f^2)/(2*pi)/2; % 参考cBathy的理论
+        h_max = 5.5;
             
         if isnan(bathy.h(mid_id, col))
             bathy.h(mid_id, col) = abs(calDepth(speed, f));
@@ -61,7 +61,7 @@ disp('反演结束！');
 %% test
 ref_id = 200;
 longshore = 1;
-params.DEBUG = 1;
+params.DEBUG = 0;
 one_long_shore_id = find(y == longshore);
 cross_shore_x = x(one_long_shore_id, :);
 one_long_shore_data = data_final(:, one_long_shore_id);
@@ -75,7 +75,7 @@ range_id = getSuitRange2(ref(1: end - params.fix_time / params.dt), data_set(1 +
     bathy.h(bathy.h == inf) = nan;
     world_info.x = 0 : params.dist : (params.xy_range(4) - params.xy_range(3));
     world_info.y = 0 : params.dist : (params.xy_range(2) - params.xy_range(1));
-    plotBathy(world_info, abs(bathy.h));
+    plotBathy(world_info, abs(bathy.h), 'timeCor');
     
     
  %% 插值操作
@@ -93,7 +93,7 @@ range_id = getSuitRange2(ref(1: end - params.fix_time / params.dt), data_set(1 +
         itp.h(:, i) = itp.tmp;
     end
     bathy.h1 = itp.h;
-    plotBathy(world_info, bathy.h1);
+    plotBathy(world_info, bathy.h1, 'timeCor');
     %% 加一些数据处理，如果产生突变深度一般理解为是反演错误，需要删除重新插值
     % 第一次处理
     err_threshold = 0.5; % 产生突变的阈值设置为0.5m
@@ -223,7 +223,7 @@ range_id = getSuitRange2(ref(1: end - params.fix_time / params.dt), data_set(1 +
     end
     bathy.h_final = avg.h;
     bathy.h_final(1:50, :) = nan;
-    plotBathy(world_info, abs(bathy.h_final));
+    plotBathy(world_info, abs(bathy.h_final),'timeCor');
     %%
     figure(99);
     itv = 0;
@@ -237,7 +237,7 @@ range_id = getSuitRange2(ref(1: end - params.fix_time / params.dt), data_set(1 +
     %%
     close all;
     figure;
-    plotBathy(world_info, abs(bathy.h_final));
+    plotBathy(world_info, abs(bathy.h_final), 'timeCor');
     
     %%
     plot(bathy.h(:, 1), 'r');
@@ -246,5 +246,5 @@ range_id = getSuitRange2(ref(1: end - params.fix_time / params.dt), data_set(1 +
     hold on;
     plot(bathy.h_final(:, 1), 'b');
     %% save bathy结构体
-    save('bathy.mat', 'bathy');
+    save([params.data_save_path 'bathy.mat'], 'bathy');
     disp('保存完成');

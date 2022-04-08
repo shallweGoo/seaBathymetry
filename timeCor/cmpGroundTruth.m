@@ -3,12 +3,13 @@
 %1、坐标转换
 %2、和图上的结果相对应
 
-dbstop if all error  % 方便调试
+% dbstop if all error  % 方便调试
 
 addpath(genpath('F:/workSpace/matlabWork/seaBathymetry/'));
-addpath(genpath('./ProcessFromVideo/'));
+addpath(genpath('ProcessFromVideo'));
 mat_savePath = 'H:/imgResult/resMat/';
 ds_image_savePath =  'H:/imgResult/downSample/';
+eval('phantom4');
 fs = 4;
 
 world.crossShoreRange = 300;
@@ -47,7 +48,7 @@ objectPointsInCs = Rotate_ned2cs*objectPoints';
 objectPointsInCs = objectPointsInCs'; %这一步转换为自建坐标系下的坐标
 
 
-%% 2、和图上的坐标对应起来
+%%%% 2、和图上的坐标对应起来
 % 将其转换为坐标
 
 % Load and Display initial Oblique Distorted Image
@@ -63,7 +64,7 @@ hold on;
 
 imshow(I);
 hold on;
-title('Pixel Instruments');
+title('无人船测量轨迹');
 load(step7.roi_path);
 load(step7.extrinsicFullyInfo_path);
 
@@ -78,30 +79,11 @@ plot(step7.UVd(:,1), step7.UVd(:,2), '*');
 xlim([0 intrinsics(1)]);
 ylim([0 intrinsics(2)]);
 
-% Allows for the instruments to be plotted before processing
-
-
-%画个原点
-% [UVo] = xyz2DistUV(intrinsics,extrinsics_ff, other_origin); %利用chooseRoi中选定的区域所具有的xyz信息插值后得到z，并用该值计算uv坐标
-% 
-% % Make A size Suitable for Plotting
-% UVo = reshape(UVo, [], 2);
-% plot(UVo(:,1), UVo(:,2),'r*');
-% xlim([0 intrinsics(1)]);
-% ylim([0  intrinsics(2)]);
-    
-    
-
 pause(1)
 
-
-
-
-
-
 %% seaDepth;
-load('F:/workSpace/matlabWork/seaBathymetry/data_struct.mat');
-load('F:/workSpace/matlabWork/seaBathymetry/bathy.mat');
+load('data_struct.mat');
+load('bathy.mat');
 
 r = size(xyz, 1);
 c = size(xyz, 2);
@@ -135,24 +117,23 @@ for i = 1 : r
     if ground_idx ~= -1
         groundTruth(ground_idx) = realDepth(closest_point_idx);
     end
-        
 end
 
 groundTruth_mat = reshape(groundTruth, size(seaDepth, 2), size(seaDepth,1));
-groundTruth_mat = rot90(groundTruth_mat,3);
+groundTruth_mat = rot90(groundTruth_mat, 3);
 
-ground_truth_tidy = tidyFix(groundTruth_mat, 0.4);
+gt = tidyFix(groundTruth_mat, 0.4);
 
 
 %% 分开画图, 该算法的表示
 close all;
 cor_sea_depth = bathy.h_final;
 cor_sea_depth(1:50, :) = nan;
-subplotBathy(world, ground_truth_tidy, cor_sea_depth);
+subplotBathy(world, gt, cor_sea_depth);
 figure;
 target_col = 100;
 subplot(3, 1, 1)
-plot(-ground_truth_tidy(:, target_col), 'k');
+plot(-gt(:, target_col), 'k');
 hold on;
 plot(-cor_sea_depth(:, target_col),'color','r','linewidth',2);
 
@@ -163,7 +144,7 @@ ylabel('water depth(m)');
 title(['transect depth in longshore ' num2str(target_col) 'm']);
 hold on;
 
-err_100m = abs(ground_truth_tidy(:, target_col) - seaDepth(:, target_col));
+err_100m = abs(gt(:, target_col) - seaDepth(:, target_col));
 err_id = find(~isnan(err_100m));
 err_real = err_100m(err_id);
 err = sqrt(sum(err_real) / length(err_real))
@@ -171,7 +152,7 @@ err = sqrt(sum(err_real) / length(err_real))
 
 target_col = 75;
 subplot(3, 1, 2)
-plot(-ground_truth_tidy(:, target_col), 'k');
+plot(-gt(:, target_col), 'k');
 hold on;
 plot(-seaDepth(:, target_col),'color','r','linewidth',2);
 
@@ -181,7 +162,7 @@ xlabel('cross shore(m)');
 ylabel('water depth(m)');
 title(['transect depth in longshore ' num2str(target_col) 'm']);
 
-err_100m = abs(ground_truth_tidy(:, target_col) - seaDepth(:, target_col));
+err_100m = abs(gt(:, target_col) - seaDepth(:, target_col));
 err_id = find(~isnan(err_100m));
 err_real = err_100m(err_id);
 err = sqrt(sum(err_real) / length(err_real))
@@ -189,7 +170,7 @@ err = sqrt(sum(err_real) / length(err_real))
 
 target_col = 10;
 subplot(3, 1, 3)
-plot(-ground_truth_tidy(:, target_col), 'k');
+plot(-gt(:, target_col), 'k');
 hold on;
 plot(-seaDepth(:, target_col),'color','r','linewidth',2);
 
@@ -199,7 +180,7 @@ xlabel('cross shore(m)');
 ylabel('water depth(m)');
 title(['transect depth in longshore ' num2str(target_col) 'm']);
 
-err_100m = abs(ground_truth_tidy(:, target_col) - seaDepth(:, target_col));
+err_100m = abs(gt(:, target_col) - seaDepth(:, target_col));
 err_id = find(~isnan(err_100m));
 err_real = err_100m(err_id);
 err = sqrt(sum(err_real) / length(err_real))
@@ -211,11 +192,11 @@ close all;
 load('cBathy.mat');
 seaDepth = bathy.fCombined.h';
 seaDepth(1:50, :) = nan;
-subplotBathy(world, ground_truth_tidy, seaDepth);
+subplotBathy(world, gt, seaDepth);
 figure;
 target_col = 100;
 subplot(3, 1, 1)
-plot(-ground_truth_tidy(:, target_col), 'k');
+plot(-gt(:, target_col), 'k');
 hold on;
 plot(-seaDepth(:, target_col),'color','r','linewidth',2);
 
@@ -226,7 +207,7 @@ ylabel('water depth(m)');
 title(['transect depth in longshore ' num2str(target_col) 'm']);
 hold on;
 
-err_100m = abs(ground_truth_tidy(:, target_col) - seaDepth(:, target_col));
+err_100m = abs(gt(:, target_col) - seaDepth(:, target_col));
 err_id = find(~isnan(err_100m));
 err_real = err_100m(err_id);
 err = sqrt(sum(err_real) / length(err_real))
@@ -234,7 +215,7 @@ err = sqrt(sum(err_real) / length(err_real))
 
 target_col = 75;
 subplot(3, 1, 2)
-plot(-ground_truth_tidy(:, target_col), 'k');
+plot(-gt(:, target_col), 'k');
 hold on;
 plot(-seaDepth(:, target_col),'color','r','linewidth',2);
 
@@ -244,7 +225,7 @@ xlabel('cross shore(m)');
 ylabel('water depth(m)');
 title(['transect depth in longshore ' num2str(target_col) 'm']);
 
-err_100m = abs(ground_truth_tidy(:, target_col) - seaDepth(:, target_col));
+err_100m = abs(gt(:, target_col) - seaDepth(:, target_col));
 err_id = find(~isnan(err_100m));
 err_real = err_100m(err_id);
 err = sqrt(sum(err_real) / length(err_real))
@@ -252,7 +233,7 @@ err = sqrt(sum(err_real) / length(err_real))
 
 target_col = 10;
 subplot(3, 1, 3)
-plot(-ground_truth_tidy(:, target_col), 'k');
+plot(-gt(:, target_col), 'k');
 hold on;
 plot(-seaDepth(:, target_col),'color','r','linewidth',2);
 
@@ -262,7 +243,7 @@ xlabel('cross shore(m)');
 ylabel('water depth(m)');
 title(['transect depth in longshore ' num2str(target_col) 'm']);
 
-err_100m = abs(ground_truth_tidy(:, target_col) - seaDepth(:, target_col));
+err_100m = abs(gt(:, target_col) - seaDepth(:, target_col));
 err_id = find(~isnan(err_100m));
 err_real = err_100m(err_id);
 err = sqrt(sum(err_real) / length(err_real))
@@ -288,13 +269,6 @@ plotBathy(world, seaDepth);
 
 
 
-%%
-
-
-
-
-
-%% 
 
 
 

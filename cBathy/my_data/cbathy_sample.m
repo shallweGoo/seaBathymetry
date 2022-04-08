@@ -1,33 +1,33 @@
 % 获取下采样之后的图像
 
 clear;
-% img_savePath =  "F:/workSpace/matlabWork/imgResult/orthImg/";
-img_savePath =  "F:/workSpace/matlabWork/corNeed_imgResult/变换后图片18/";
-% img_savePath = "F:/workSpace/matlabWork/dispersion/selectPic/afterPer/双月湾第二组变换后/变换后图片14/";
+run('F:/workSpace/matlabWork/seaBathymetry/bathyParams');
+img_savePath =  params.final_path;
+
 img_name = string(ls(img_savePath));
 img_name = img_name(3:end);
 
 %  循环获取图片信息
 %  xyz+data+t
-fs  = 2 ;
-save_name = './2021_05_15_group1';
+fs  = params.fs;
+save_name = 'cBathy_input';
 %%
 % 1.xyz获取
 row_id = 1;
 
-dist = 1;
+dist = params.dist;
 
 % 图片起始x,y范围
-img_x_begin = 0;
-img_x_end = 300;
-img_y_begin = 50;
-img_y_end = 150;
+img_x_begin = params.xy_min_max(1);
+img_x_end = params.xy_min_max(2);
+img_y_begin = params.xy_min_max(3);
+img_y_end = params.xy_min_max(4);
 
 % 想要采样的图片范围
-x_begin = 0;
-x_end = 300;
-y_begin = 50;
-y_end = 150;
+x_begin = params.xy_min_max(1);
+x_end = params.xy_min_max(2);
+y_begin = params.xy_min_max(3);
+y_end = params.xy_min_max(4);
 
 
 for dx = x_begin : dist : x_end
@@ -71,17 +71,36 @@ for img_id = 1:length(img_name)
     
     pixel_intensity_info = zeros(1, length(sample_point_xyz));
     
+    % 画图
 %     figure(22);
 %     imshow(pixel_info);
 %     hold on;
+%     plot(sample_point_xyz(:,2),sample_point_xyz(:,1),'b.','markersize',10,'linewidth',3); % all sample plot
+%     % uv
+%     area_pts_id = find(sample_point_xyz(:,2) >= 1 & sample_point_xyz(:, 2) <= 61 & sample_point_xyz(:,1) >= 201 & sample_point_xyz(:,1) <= 261);
+%     area_pts = sample_point_xyz(area_pts_id, :);
+%     
+%     hold on;
+%     plot(area_pts(:, 2),area_pts(: ,1),'r.','markersize',10,'linewidth',3); % area plot
+%     
+%     hold on;    
+%     plot(area_pts(floor(size(area_pts, 1) / 2) + 1 ,  2), area_pts(floor(size(area_pts, 1) / 2) + 1,1), 'g*','markersize',10,'linewidth',3); % area plot
+%     
+%     pause;
+%     close(22);
+        
+    
+    
     
     for point_id = 1:length(sample_point_xyz)
         pixel_intensity_info(1, point_id) =  pixel_info(sample_point_xyz(point_id,1), sample_point_xyz(point_id,2));
-%         画图
-%        plot(sample_point_xyz(point_id,2),sample_point_xyz(point_id,1),'k.','markersize',5,'linewidth',3);
-        
     end
-        
+
+
+
+    
+    
+    
     data(time_id, :) = pixel_intensity_info;
     
     time_id = time_id + 1;
@@ -116,7 +135,7 @@ end
 disp('get t successfully!');
 
 %%
-save(save_name,'xyz','data','t');
+save([params.data_save_path save_name],'xyz','data','t');
 
 disp('process done');
 

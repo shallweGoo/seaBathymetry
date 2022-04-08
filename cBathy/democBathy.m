@@ -4,7 +4,7 @@
 
 clear
 % dbstop if all error  % 方便调试
-% addpath(genpath('./my_data'));
+addpath(genpath('./my_data'));
 
 % Do a single cBathy analysis, returning the bathy structure (which you
 % would normally save somewhere) and displaying the results.  
@@ -13,17 +13,15 @@ clear
 % stackName = 'testStack102210Duck';
 
 
-
-% stationStr = 'mavicPro';
-% stackName = '2020_10_24_group5';
-stationStr = 'phantom4';
-stackName = 'data_struct';
+stationStr = 'F:/workSpace/matlabWork/seaBathymetry/bathyParams';
+run(stationStr);
+stackName = [params.data_save_path 'cBathy_input'];
 
 bathy = analyzeSingleBathyRunNotCIL(stackName, stationStr);
 bathy.params.debug.production = 0;
 plotBathyCollect(bathy)
 %%
-save('F:/workSpace/matlabWork/seaBathymetry/cbathy.mat','bathy');
+save([params.data_save_path 'cbathy.mat'], 'bathy');
 
 %% 对比数据的才有用到
 % Now compare this result with a supplied example CRAB survey from three

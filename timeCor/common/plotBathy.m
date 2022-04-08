@@ -1,6 +1,6 @@
 % ∂‘ÀÆ…Óª≠Õº
 %
-function plotBathy(WorldCor, DepthInfo)
+function plotBathy(WorldCor, DepthInfo, title_name)
     % set up the figure
     set(gcf,'RendererMode','manual','Renderer','painters');
     cmap = colormap( 'jet' );
@@ -20,8 +20,8 @@ function plotBathy(WorldCor, DepthInfo)
     ylabel('y (m)');
 %     titstr = datestr( epoch2Matlab(str2num(bathy.epoch)), ...
 %     'mmm dd yyyy, HH:MM' );
-    titstr = "testBathy";
-    title( titstr );
+%     title_name = "testBathy";
+    title(title_name);
     h=colorbar('peer', gca);
     set(h, 'ydir', 'rev');
     set(get(h,'title'),'string', 'h (m)');

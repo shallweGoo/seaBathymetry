@@ -1,12 +1,14 @@
 % 模仿cBathy的流程
 
-eval('phantom4');
+run('F:/workSpace/matlabWork/seaBathymetry/bathyParams');
 addpath('./algoV2/makeTimeStack');
 
-save_info.path = './';
+save_info.path = params.data_save_path;
 save_info.name = 'data_struct';
 
-% img_path = 'F:/workSpace/matlabWork/corNeed_imgResult/变换后图片18/';
+
+plotFlag.plot_raw_filter_f_distribution = 0; 
+
 
 
 time_info = [2021 1 21 8 10 0];
@@ -17,12 +19,18 @@ time_info = [2021 1 21 8 10 0];
 
 %%
 data_lowpass = lowPassFliter(data, params);
-% figure(99)
-% plot(1 : params.N , abs(fft(data_lowpass)),'r');
-  
+
+if plotFlag.plot_raw_filter_f_distribution
+    figure(99)
+    plot(1 : params.N , abs(fft(data_lowpass)),'r');
+    hold on;
+    plot(1 : params.N, abs(fft(detrend(data))), 'b');
+    pause;
+    close(99)
+end
 
 %% 分析一下时域相关的频率
-dbstop if all error  % 方便调试
+% dbstop if all error  % 方便调试
 G = fft(detrend(data));
 x = xyz(:, 1);
 y = xyz(:, 2);
@@ -58,8 +66,8 @@ for y_pos = min(y) : params.dist : max(y)
 end
 
 %%
-    save('data_final', 'data_final');
-
+    save([save_info.path 'data_final'], 'data_final');
+    disp('mainMakeTimeStack finished');
 %%
 % figure(23)
 % plot(data_final(:,30401),'r');

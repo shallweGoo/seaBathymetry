@@ -94,20 +94,21 @@ for xind = 1:length(bathy.xm)   %一个for循环
         end
     else  
         parfor yind = 1:length(bathy.ym) %用parfor加速计算，多线程
-            [fDep{yind},camUsed(yind)] = subBathyProcess( f, G, xyz, cam, ...    %该函数实现f_depend结构体的构建，包括f_depend的波数k，波向Alpha等参数
-                bathy.xm(xind), bathy.ym(yind), bathy.params, kappa );           %这些参数是根据给定f所得出来的
+            [fDep{yind},camUsed(yind)] = subBathyProcess( f, G, xyz, cam, ...    % 该函数实现f_depend结构体的构建，包括f_depend的波数k，波向Alpha等参数
+                bathy.xm(xind), bathy.ym(yind), bathy.params, kappa );           % 这些参数是根据给定f所得出来的
         end  %% parfor yind
     end
     
     % stuff fDependent data back into bathy (outside parfor)
     % 相关数据放回bathy结构体中
+    % 还是根据区域来存放的，有ind个区域
     for ind = 1:length(bathy.ym)
 
 	bathy.camUsed(ind,xind) = camUsed(ind);
         
         if( any( ~isnan( fDep{ind}.k) ) )  % not NaN, valid data. 是否存在有效数据
-            bathy.fDependent.fB(ind, xind, :) = fDep{ind}.fB(:);
-            bathy.fDependent.k(ind,xind,:) = fDep{ind}.k(:);
+            bathy.fDependent.fB(ind, xind, :) = fDep{ind}.fB(:);  % fB已经经过了相关性排序，保留了nKeep个相关频率
+            bathy.fDependent.k(ind,xind,:) = fDep{ind}.k(:);    % 对应以上的顺序
             bathy.fDependent.a(ind,xind,:) = fDep{ind}.a(:);
             bathy.fDependent.dof(ind,xind,:) = fDep{ind}.dof(:);
             bathy.fDependent.skill(ind,xind,:) = fDep{ind}.skill(:);

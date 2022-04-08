@@ -2,7 +2,7 @@
 
 function filter_data = lowPassFliter(ori_data, params)
 % bp_filter信息
-bp_filter = load(['F:\workSpace\matlabWork\seaBathymetry\filter_mat\bpfilter0.05_0.5Fs' num2str(params.fs) '.mat']); %注意修改对应的滤波器
+bp_filter = load(['.\filter_mat\bpfilter0.05_0.5Fs' num2str(params.fs) '.mat']); %注意修改对应的滤波器
 bpfilter = bp_filter.bpfilter;
 filter_len = length(bpfilter);
 data = detrend(double(ori_data)); % 去线性化

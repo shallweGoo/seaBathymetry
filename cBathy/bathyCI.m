@@ -1,7 +1,8 @@
 function bathyErr = bathyCI(resid,J,w)
 % 
-% nlparci 的更改版本经过专门修改以处理 cBathy 的深海估计问题并考虑对平方和的加权贡献。 唯一的变化是根据权重 w 减少自由度的数量。
-%   bathyErr = bathyCI(resid,J,w)
+%  nlparci 的更改版本经过专门修改以处理 cBathy 的深海估计问题并考虑对平方和的加权贡献。 唯一的变化是根据权重 w 减少自由度的数量。
+% 返回一个自定义的置信区间
+%  bathyErr = bathyCI(resid,J,w)
 %
 %  altered version of nlparci specifically modified to handle the bathy
 %  estimation problem for cBathy and to account for the weighted
@@ -20,18 +21,18 @@ function bathyErr = bathyCI(resid,J,w)
 
 alpha = 0.05;
 
-n = sum(w)/max(w);  % Holman kludge
+n = sum(w)/max(w);  % Holman kludge 
 v = n-1;
 
 % Calculate covariance matrix
-[~,R] = qr(J,0);
-Rinv = R\eye(size(R));
-diag_info = sum(Rinv.*Rinv,2);
+[~,R] = qr(J,0); % 三角化
+Rinv = R\eye(size(R)); % 上三角矩阵的逆也为上三角矩阵
+diag_info = sum(Rinv.*Rinv,2); % 按行相加
 
 rmse = norm(resid) / sqrt(v);
 se = sqrt(diag_info) * rmse;
 
-% Calculate bathyError from t-stats.
+% Calculate bathyError from t-stats. 符合t分布
 bathyErr = se * tinv(1-alpha/2,v);
 
 
